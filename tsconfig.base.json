@@ -15,6 +15,12 @@
     "lib": [
       "es2018",
       "dom"
-    ]
+    ],
+    "paths": {
+      "@spiffing/services/*": ["src/app/services/*"],
+      "@spiffing/api/*": ["src/app/api/*"],
+      "@spiffing/env/*": ["src/environments/*"],
+      "interface": ["src/app/api/interface/index.ts"]
+    }
   }
 }

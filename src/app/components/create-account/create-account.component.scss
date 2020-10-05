@@ -1,0 +1,12 @@
+app-standalone-card {
+    .create-account-form {
+        display: flex;
+        flex-direction: column;
+        width: 80%;
+        margin: auto;
+
+        .submit-button {
+            margin-top: 12px;
+        }
+    }
+}

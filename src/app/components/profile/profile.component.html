@@ -1,0 +1,44 @@
+<div class="container">
+    <mat-card class="profile">
+        <h1 class="screen-name">Hello</h1>
+        <div class="user-area">
+            <img src="/assets/anon.png" class="profile-picture">
+            <h2 class="username">{{ username }}</h2>
+        </div>
+        <hr>
+        <mat-spinner *ngIf="loadingPosts; else ngPosts" class="post-spinner"></mat-spinner>
+
+        <ng-template #ngPosts>
+            <div class="post-container">
+                <div class="post" *ngFor="let post of posts">
+                    <h3 class="post-title">{{ post.title }}</h3>
+                    <p class="post-content">{{ post.content }}</p>
+                </div>
+            </div>
+        </ng-template>
+
+        <ng-template #ngPosts>
+            <div class="post-row" *ngFor="let row of posts">
+                <div class="post" *ngFor="let post of row">
+                    <h3 class="post-title">{{ post.title }}</h3>
+                    <p>{{ post.content }}</p>
+                </div>
+            </div>
+        </ng-template>
+    </mat-card>
+</div>
+
+<!-- <ng-template #postSection>
+    <div class="post-section" *ngIf="posts.length; else noPosts">
+        <mat-card class="profile-post-preview" *ngFor="let post of posts">
+            <span class="post-title">{{ post.title }}</span>
+            <hr>
+            <mat-card-content>
+                {{ post.content }}
+            </mat-card-content>
+        </mat-card>
+    </div>
+    <ng-template #noPosts>
+        <span>No posts found.</span>
+    </ng-template>
+</ng-template> -->
