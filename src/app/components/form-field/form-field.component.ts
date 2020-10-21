@@ -8,29 +8,31 @@ import { FormControl } from '@angular/forms';
 })
 export class FormFieldComponent implements OnInit {
 
-    @Input() public inputType = 'text';
-    @Input() public label = 'Form Field';
-    @Input() public control = new FormControl();
+    @Input() inputType = 'text';
+    @Input() label = 'Form Field';
+    @Input() value: string;
+    @Input() control = new FormControl();
 
-    @Input() public errorStrategy: DisplayErrorStrategy = 'all';
-    @Input() public errorPriority: string[];
-    @Input() public errorMap = new Map<string, string>();
+    @Input() errorStrategy: DisplayErrorStrategy = 'all';
+    @Input() errorPriority: string[];
+    @Input() errorMap = new Map<string, string>();
 
-    public errors: string[] = [];
+    errors: string[] = [];
 
     constructor() { }
 
     ngOnInit(): void {
-        if (!this.errorPriority) {
+        this.control.setValue(this.value);
+        if (this.errorStrategy === 'priority' && !this.errorPriority) {
             throw new Error('Error strategy set to "Priority" but no errorPriority was provided!');
         }
     }
 
-    public useErrorMap(error: string): string {
+    useErrorMap(error: string): string {
         return this.errorMap.has(error) ? this.errorMap.get(error) : `Error: ${error}`;
     }
 
-    public hasErrors(): boolean {
+    hasErrors(): boolean {
         this.errors = [];
         switch (this.errorStrategy) {
             case 'none':

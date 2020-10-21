@@ -3,7 +3,7 @@ import { FormControl, Validators } from '@angular/forms';
 import { UserAccountService } from 'src/app/services/user-account/user-account.service';
 import { MatDialogRef, MatDialog } from '@angular/material/dialog';
 import { ApiEndpointService } from '@spiffing/api/services/endpoint/api-endpoint.service';
-import { CreateAccountDialogComponent } from '../create-account-dialog/create-account-dialog.component';
+import { CreateAccountDialogComponent } from '../../ui/components/dialogs';
 
 @Component({
     selector: 'app-login-dialog',
@@ -54,13 +54,14 @@ export class LoginDialogComponent implements AfterViewInit {
         this.loginInProgress = true;
 
         const result = await this.account.login(this.usernameForm.value, this.passwordForm.value);
+        console.log(result);
         this.loginInProgress = false;
-        if (result.success) {
-            this.dialog.close();
-        } else {
-            this.errorMessage = result.message;
-            console.log(result.message);
-            // this.invalidInfo = true;
+        switch (result.status) {
+            case 'ABSENT':
+                this.errorMessage = 'No account with that username.';
+                break;
+            case 'OK':
+                this.dialog.close();
         }
     }
 

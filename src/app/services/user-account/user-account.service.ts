@@ -9,33 +9,60 @@ export const LOCAL_STORAGE_ACCOUNT_KEY = 'spf-account';
 })
 export class UserAccountService {
 
-    public isSignedIn = false;
-    public username: string;
+    isSignedIn = false;
+    loginInProgress = false;
+
+    username: string;
+    password: string;
+    screenName: string;
+    createdTimestamp: number;
 
     public signInEventStream = new EventEmitter<boolean>();
 
     constructor(private ls: LocalStorageService, private api: ApiEndpointService) { }
 
-    public async login(username: string, password: string): Promise<LoginResult> {
+    public async login(username: string, password: string): Promise<
+    { status: 'OK' | 'FAILED' | 'ABSENT' } |
+    { status: 'OTHER'; message: string; }
+    > {
+        this.loginInProgress = true;
         const request = await this.api.authenticate(username, password);
 
         if (request.ok) {
             switch (request.payload.status) {
                 case 'OK':
                     this.username = username;
+                    this.password = password;
+                    const userDataReq = await this.api.getUser(this.username);
+                    switch (userDataReq.status) {
+                        case 'OK':
+                            this.screenName = userDataReq.data.screenName;
+                            this.createdTimestamp = userDataReq.data.created;
+                            break;
+                        case 'NO_RESULTS':
+                            throw new Error('Unexpected NO_RESULTS status from API.');
+                    }
                     this.ls.write(LOCAL_STORAGE_ACCOUNT_KEY, { username, password });
+                    this.loginInProgress = false;
                     this.setSignInStatus(true);
-                    return { success: true };
+                    return { status: 'OK' };
                 case 'REJECTED':
-                    return { success: false, message: request.payload.message };
+                    this.loginInProgress = false;
+                    return { status: 'FAILED' };
+                case 'MISSING_RECORD':
+                    this.loginInProgress = false;
+                    return { status: 'ABSENT' };
             }
         }
-        return { success: false, message: request.errorMessage };
+        return { status: 'OTHER', message: request.errorMessage };
 
     }
 
     public logOut(): void {
         this.username = null;
+        this.password = null;
+        this.screenName = null;
+        this.createdTimestamp = 0;
         this.ls.delete(LOCAL_STORAGE_ACCOUNT_KEY);
         this.setSignInStatus(false);
     }
@@ -44,6 +71,12 @@ export class UserAccountService {
         this.isSignedIn = status;
         // this.api.getUser();
         this.signInEventStream.emit(status);
+    }
+
+    changeUsername(newUsername: string): void {
+        this.username = newUsername;
+        this.ls.write(LOCAL_STORAGE_ACCOUNT_KEY, { username: newUsername, password: this.password });
+        this.signInEventStream.emit(true);
     }
 }
 

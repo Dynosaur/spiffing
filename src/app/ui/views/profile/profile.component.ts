@@ -1,9 +1,11 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { UserAccountService } from 'src/app/services/user-account/user-account.service';
-import { Post } from '../../services/post/post-status';
+import { Post } from '../../../services/post/post-status';
 import { PostService } from '@spiffing/services/post/post.service';
 import { Subscription } from 'rxjs';
+import { ApiEndpointService } from '@spiffing/api/services/endpoint/api-endpoint.service';
+import { DialogService } from '../../../services/dialog';
 
 @Component({
     selector: 'app-profile',
@@ -12,15 +14,20 @@ import { Subscription } from 'rxjs';
 })
 export class ProfileComponent implements OnInit, OnDestroy {
 
-    public username: string;
-    public screenName: string;
-    public posts: Post[];
+    username: string;
+    screenName: string;
+    createdTimestamp: number;
+    posts: Post[];
 
-    public loadingPosts = true;
+    loadingPosts = true;
 
-    private postStream: Subscription;
+    postStream: Subscription;
 
-    constructor(private user: UserAccountService, private post: PostService, private route: ActivatedRoute) {
+    constructor(private user: UserAccountService,
+                private post: PostService,
+                private route: ActivatedRoute,
+                private api: ApiEndpointService,
+                public dialog: DialogService) {
         this.postStream = post.postEventStream.subscribe(() => this.refreshPosts());
     }
 
@@ -29,10 +36,18 @@ export class ProfileComponent implements OnInit, OnDestroy {
     }
 
     public ngOnInit(): void {
-        this.route.params.subscribe(params => {
+        this.route.params.subscribe(async params => {
             this.username = params.username;
-            console.log(params);
             this.refreshPosts();
+            const userDataReq = await this.api.getUser(this.username);
+            switch (userDataReq.status) {
+                case 'OK':
+                    this.screenName = userDataReq.data.screenName;
+                    this.createdTimestamp = userDataReq.data.created;
+                    break;
+                case 'NO_RESULTS':
+                    throw new Error('Unexpected NO_RESULTS status from API.');
+            }
         });
     }
 
@@ -53,6 +68,10 @@ export class ProfileComponent implements OnInit, OnDestroy {
             return [];
         }
 
+    }
+
+    clickPost(id: string): void {
+        console.log(id);
     }
 
 }

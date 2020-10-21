@@ -3,6 +3,7 @@ import { AbstractControl, FormControl, ValidationErrors,
     ValidatorFn, Validators } from '@angular/forms';
 import { MatDialogRef } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { Router } from '@angular/router';
 import { ApiEndpointService } from '@spiffing/api/services/endpoint/api-endpoint.service';
 import { UserAccountService } from '@spiffing/services/user-account/user-account.service';
 
@@ -27,7 +28,8 @@ export class CreateAccountDialogComponent implements OnInit {
     constructor(private dialog: MatDialogRef<CreateAccountDialogComponent>,
                 private api: ApiEndpointService,
                 private snackbar: MatSnackBar,
-                private user: UserAccountService) {
+                private user: UserAccountService,
+                private router: Router) {
         this.retypePasswordErrorMap.set('required', 'Please retype your password');
         this.retypePasswordErrorMap.set('sameValue', 'Passwords to not match');
     }
@@ -52,6 +54,7 @@ export class CreateAccountDialogComponent implements OnInit {
                 this.creatingAccount = false;
                 this.dialog.close();
                 this.snackbar.open('Successfully created new account.', 'OK', { duration: 3000 });
+                this.router.navigate(['user', this.user.username]);
                 break;
             case 'OK':
                 this.creatingAccount = false;

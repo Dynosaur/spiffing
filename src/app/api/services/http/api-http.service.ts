@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpErrorResponse, HttpEvent, HttpHeaders, HttpParams, HttpRequest } from '@angular/common/http';
 import { environment as env } from '@spiffing/env/environment';
-import { Response } from 'interface';
+import { Response, ResponseStatus } from 'interface';
 
 export type HttpError = 'NoResponse';
 
@@ -45,7 +45,7 @@ export class ApiHttpService {
         }
     }
 
-    private async request<T extends Response>(method: string, path: string[], query: object, body: object, headers: Headers): Promise<HttpResponse<T>> {
+    private async request<T extends { status: ResponseStatus }>(method: string, path: string[], query: object, body: object, headers: Headers): Promise<HttpResponse<T>> {
         const url = this.createUrl(path, query);
         console.log(`[NET] ${method} ${url}`);
         await this.fakeWait();
@@ -53,17 +53,14 @@ export class ApiHttpService {
         try {
             const payload = await this.http.request<T>(method, url, { body, headers }).toPromise();
             console.log(payload);
-            switch (payload.status) {
-                case 'INCOMPLETE':
-                case 'MALFORMED':
-                    throw new Error(payload.message);
-            }
             return { ok: true, payload };
         } catch (error) {
             console.error('[NET] Request Error!');
             if (error instanceof HttpErrorResponse) {
                 if (error.error instanceof ProgressEvent) {
                     return { ok: false, error: 'NoResponse', errorMessage: 'Could not connect to our services.', payload: null };
+                } else if (error.error.status && error.error.message) {
+                    return { ok: true, payload: error.error };
                 }
             }
             console.log(error);
@@ -71,12 +68,20 @@ export class ApiHttpService {
         }
     }
 
-    public async get<T extends Response>(path: string[], query: object, headers: { [header: string]: string }): Promise<HttpResponse<T>> {
+    async get<T extends Response>(path: string[], query: object, headers: Headers): Promise<HttpResponse<T>> {
         return await this.request<T>('GET', path, query, {}, headers);
     }
 
-    public async post<T extends Response>(path: string[], query: object, body: object, headers: { [header: string]: string }): Promise<HttpResponse<T>> {
-        return await this.request<T>('POST', path, query, body, headers);
+    async post<T extends Response>(path: string[], body: object, headers: Headers): Promise<HttpResponse<T>> {
+        return await this.request<T>('POST', path, {}, body, headers);
+    }
+
+    async delete<T extends Response>(path: string[], headers: Headers): Promise<HttpResponse<T>> {
+        return await this.request<T>('DELETE', path, {}, {}, headers);
+    }
+
+    async patch<T extends { status: ResponseStatus }>(path: string[], body: object, headers: Headers): Promise<HttpResponse<T>> {
+        return await this.request<T>('PATCH', path, {}, body, headers);
     }
 
 }

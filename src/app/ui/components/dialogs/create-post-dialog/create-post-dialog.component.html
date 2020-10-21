@@ -15,5 +15,5 @@
 </div>
 <mat-error *ngIf="errorMessage">{{ errorMessage }}</mat-error>
 <div mat-dialog-actions>
-    <app-button [disabled]="!(postTitle.valid && postContent.valid) || isPosting" [showProgress]="isPosting" (click)="createPost()">Post</app-button>
+    <spiff-button [disabled]="!(postTitle.valid && postContent.valid) || isPosting" [showProgress]="isPosting" (click)="createPost()">Post</spiff-button>
 </div>

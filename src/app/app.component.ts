@@ -1,13 +1,13 @@
 import { Component, OnInit } from '@angular/core';
 import { UserAccountService, LOCAL_STORAGE_ACCOUNT_KEY } from './services/user-account/user-account.service';
 import { MatDialog } from '@angular/material/dialog';
-import { CreatePostDialogComponent } from './components/create-post-dialog/create-post-dialog.component';
 import { LocalStorageService } from './services/local-storage/local-storage.service';
 import { LoginDialogComponent } from './components/login-dialog/login-dialog.component';
 import { ApiHttpService } from '@spiffing/api/services/http/api-http.service';
 import { ActivatedRoute, Params } from '@angular/router';
-import { CreateAccountDialogComponent } from './components/create-account-dialog/create-account-dialog.component';
+import { CreateAccountDialogComponent, CreatePostDialogComponent } from './ui/components/dialogs';
 import { SnackbarService } from './services/snackbar/snackbar.service';
+import { DialogService } from './services/dialog';
 
 interface LocalStorageCurrentUser {
     username: string;
@@ -27,29 +27,29 @@ export class AppComponent implements OnInit {
     public loadingUsername = false;
 
     constructor(private userAccount: UserAccountService,
-                private dialog: MatDialog,
+                private dialog: DialogService,
                 private ls: LocalStorageService,
                 private api: ApiHttpService,
                 private route: ActivatedRoute,
                 private snack: SnackbarService) { }
 
-    public ngOnInit(): void {
+    async ngOnInit(): Promise<void> {
         this.route.queryParams.subscribe(this.handleDialogQuery.bind(this));
         this.userAccount.signInEventStream.subscribe(this.onSignInEvent.bind(this));
         const lsResult = this.ls.read<LocalStorageCurrentUser>(LOCAL_STORAGE_ACCOUNT_KEY);
         if (lsResult.valid) {
             this.loadingUsername = true;
-            this.userAccount.login(lsResult.data.username, lsResult.data.password).then(result => {
-                console.log(result);
-                if (!result.success) {
-                    if (result.message === 'ENORESPONSE') {
-                        this.snack.push('Unable to connect to our services.', null, 5000);
-                    } else {
-                        throw new Error('Cannot handle: ' + result.message);
-                    }
-                }
-                this.loadingUsername = false;
-            });
+            const resp = await this.userAccount.login(lsResult.data.username, lsResult.data.password);
+            console.log(resp);
+            switch (resp.status) {
+                case 'FAILED':
+                case 'ABSENT':
+                    this.snack.push('Sorry, we were unable to log you in.', 'OK', 5000);
+                    break;
+                case 'OTHER':
+                    throw new Error('Cannot handle: ' + resp.message);
+            }
+            this.loadingUsername = false;
         }
     }
 
@@ -70,16 +70,16 @@ export class AppComponent implements OnInit {
         }
     }
 
-    private openLoginDialog(): void {
-        this.dialog.open(LoginDialogComponent, { width: 'fit-content' });
+    openLoginDialog(): void {
+        this.dialog.openLoginDialog();
     }
 
-    private openRegisterDialog(): void {
-        this.dialog.open(CreateAccountDialogComponent, { width: 'fit-content' });
+    openRegisterDialog(): void {
+        this.dialog.openRegisterDialog();
     }
 
-    private openPostDialog(): void {
-        this.dialog.open(CreatePostDialogComponent, { width: '80%' });
+    openPostDialog(): void {
+        this.dialog.openCreatePostDialog();
     }
 
     private onSignInEvent(value: boolean): void {
@@ -92,14 +92,10 @@ export class AppComponent implements OnInit {
     }
 
     public signIn(): void {
-        this.dialog.open(LoginDialogComponent, { width: 'fit-content' });
+        this.dialog.openLoginDialog();
     }
 
     public signOut(): void {
         this.userAccount.logOut();
-    }
-
-    public createPost(): void {
-        this.dialog.open(CreatePostDialogComponent, { width: '80%' });
     }
 }

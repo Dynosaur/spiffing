@@ -4,12 +4,13 @@
     .profile {
         max-width: 1200px;
         margin: 0 auto;
-        padding: 10px 7%;
+        padding: 16px 10%;
 
         .screen-name {
             width: fit-content;
             margin: 0 auto 10px auto;
             font-weight: 300;
+            height: 32px;
         }
 
         .user-area {
@@ -33,6 +34,12 @@
         }
 
         .post-spinner {
+            margin: auto;
+        }
+
+        .make-post-button {
+            display: block;
+            width: fit-content;
             margin: auto;
         }
 

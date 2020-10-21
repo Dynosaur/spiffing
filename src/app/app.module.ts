@@ -7,21 +7,20 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
 
 import { AppComponent } from './app.component';
-import { CreateAccountComponent } from './components/create-account/create-account.component';
 import { LandingPageComponent } from './components/landing-page/landing-page.component';
 import { NotFoundComponent } from './components/not-found/not-found.component';
 import { StandaloneCardComponent } from './components/standalone-card/standalone-card.component';
-import { ButtonComponent } from './components/button/button.component';
-import { CreatePostDialogComponent } from './components/create-post-dialog/create-post-dialog.component';
-import { ProfileComponent } from './components/profile/profile.component';
+import { ButtonComponent, ViewCardComponent } from './ui/components';
 import { LoginDialogComponent } from './components/login-dialog/login-dialog.component';
-import { CreateAccountDialogComponent } from './components/create-account-dialog/create-account-dialog.component';
 import { FormFieldComponent } from './components/form-field/form-field.component';
+import { ProfileComponent, SettingsComponent } from './ui/views';
+import { CreateAccountDialogComponent, DeleteAccountConfirmDialogComponent, ChangeUsernameDialogComponent,
+CreatePostDialogComponent } from './ui/components/dialogs';
+import { DialogComponent } from './ui/components';
 
 @NgModule({
     declarations: [
         AppComponent,
-        CreateAccountComponent,
         LandingPageComponent,
         NotFoundComponent,
         StandaloneCardComponent,
@@ -30,7 +29,12 @@ import { FormFieldComponent } from './components/form-field/form-field.component
         ProfileComponent,
         LoginDialogComponent,
         CreateAccountDialogComponent,
-        FormFieldComponent
+        FormFieldComponent,
+        SettingsComponent,
+        ViewCardComponent,
+        DeleteAccountConfirmDialogComponent,
+        ChangeUsernameDialogComponent,
+        DialogComponent
     ],
     imports: [
         BrowserAnimationsModule,

@@ -27,11 +27,11 @@
     </form>
 
     <mat-error *ngIf="registerError">{{ registerError }}</mat-error>
-    <app-button
+    <spiff-button
             class="create-account-button"
             [disabled]="!usernameControl.valid || !passwordControl.valid || !retypePasswordControl.valid"
             [showProgress]="creatingAccount"
             (click)="createAccount()">
         Create Account
-    </app-button>
+    </spiff-button>
 </div>

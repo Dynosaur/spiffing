@@ -21,12 +21,12 @@
             </mat-form-field>
         </form>
         <mat-error *ngIf="errorMessage">{{ errorMessage }}</mat-error>
-        <app-button
+        <spiff-button
                 [disabled]="!(usernameControl.valid && passwordControl.valid)"
                 [showProgress]="submitInProgress"
                 class="sign-in-button">
             Sign In
-        </app-button>
+        </spiff-button>
         <button mat-stroked-button color="primary" class="create-account-button" routerLink="/create-account">Don't have an account? Create one here!</button>
     </mat-card-content>
 </app-standalone-card>

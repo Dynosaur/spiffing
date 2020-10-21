@@ -14,7 +14,7 @@ export class PostService {
 
     public async createPost(title: string, content: string): Promise<PostStatus> {
         if (this.user.isSignedIn) {
-            const res = await this.api.POSTPost(title, content, this.user.username);
+            const res = await this.api.createPost(this.user.username, this.user.password, title, content);
             if (res.status === 'CREATED') {
                 this.postEventStream.emit('New post');
                 return {
