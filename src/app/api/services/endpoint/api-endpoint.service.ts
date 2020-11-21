@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
-import { AuthenticateResponse, CreatePostResponse, GetPostsResponse, GetUserResponse, RegisterResponse, DeregisterResponse,
-ChangeUserDataResponse } from '../../interface';
+import { AuthenticateEndpoint, CreatePostEndpoint, DeregisterEndpoint, GetPostEndpoint, GetPostsEndpoint, GetUserEndpoint, PatchEndpoint,
+RegisterEndpoint } from '../../interface/responses';
 import { ApiHttpService, HttpResponse } from '../http/api-http.service';
 
 @Injectable({
@@ -10,42 +10,57 @@ export class ApiEndpointService {
 
     constructor(private api: ApiHttpService) { }
 
-    public static basicAuth(username: string, password: string): string {
+    static basicAuth(username: string, password: string): string {
         return 'Basic ' + btoa(username + ':' + password);
     }
 
-    public async getPosts(author: string): Promise<HttpResponse<GetPostsResponse>> {
-        return await this.api.get<GetPostsResponse>(['api', 'posts'], { author }, {});
+    async getPosts(author: string): Promise<HttpResponse<GetPostsEndpoint>> {
+        return await this.api.get<GetPostsEndpoint>(['api', 'posts'], { author }, {});
     }
 
-    public async createPost(username: string, password: string, title: string, content: string): Promise<CreatePostResponse> {
+    async createPost(username: string, password: string, title: string, content: string): Promise<CreatePostEndpoint> {
         const authorization = ApiEndpointService.basicAuth(username, password);
-        const response = await this.api.post<CreatePostResponse>(['api', username, 'post'], { title, content, author: username }, { authorization });
+        const response = await this.api.post<CreatePostEndpoint>(['api', username, 'post'], {
+            author: username,
+            content,
+            title
+        }, { authorization });
         return response.payload;
     }
 
-    public async getUser(username: string): Promise<GetUserResponse> {
-        const response = await this.api.get<GetUserResponse>(['api', 'user', username], {}, {});
+    async getUser(username: string): Promise<GetUserEndpoint> {
+        const response = await this.api.get<GetUserEndpoint>(['api', 'user', username], {}, {});
         return response.payload;
     }
 
-    public async register(username: string, password: string): Promise<HttpResponse<RegisterResponse>> {
+    async register(username: string, password: string): Promise<HttpResponse<RegisterEndpoint>> {
         const authorization = ApiEndpointService.basicAuth(username, password);
         return await this.api.post(['api', 'user', username], {}, { authorization });
     }
 
-    public async authenticate(username: string, password: string): Promise<HttpResponse<AuthenticateResponse>> {
+    async authenticate(username: string, password: string): Promise<HttpResponse<AuthenticateEndpoint>> {
         const authorization = ApiEndpointService.basicAuth(username, password);
         return await this.api.post(['api', 'authenticate'], {}, { authorization });
     }
 
-    async deregister(username: string, password: string): Promise<HttpResponse<DeregisterResponse>> {
+    async deregister(username: string, password: string): Promise<HttpResponse<DeregisterEndpoint>> {
         const authorization = ApiEndpointService.basicAuth(username, password);
         return await this.api.delete(['api', 'user', username], { authorization });
     }
 
-    async updateUserData(username: string, password: string, update: { username?: string; password?: string; }): Promise<HttpResponse<ChangeUserDataResponse>> {
+    async updateUserData(
+        username: string,
+        password: string,
+        update: {
+            username?: string;
+            password?: string;
+        }
+    ): Promise<HttpResponse<PatchEndpoint>> {
         const authorization = ApiEndpointService.basicAuth(username, password);
-        return await this.api.patch<ChangeUserDataResponse>(['api', 'user', username], update, { authorization });
+        return await this.api.patch(['api', 'user', username], update, { authorization });
+    }
+
+    async getPost(id: string): Promise<HttpResponse<GetPostEndpoint>> {
+        return await this.api.get(['api', 'post', id], {}, {});
     }
 }

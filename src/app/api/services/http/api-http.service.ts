@@ -1,7 +1,6 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpErrorResponse, HttpEvent, HttpHeaders, HttpParams, HttpRequest } from '@angular/common/http';
 import { environment as env } from '@spiffing/env/environment';
-import { Response, ResponseStatus } from 'interface';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 
 export type HttpError = 'NoResponse';
 
@@ -45,7 +44,13 @@ export class ApiHttpService {
         }
     }
 
-    private async request<T extends { status: ResponseStatus }>(method: string, path: string[], query: object, body: object, headers: Headers): Promise<HttpResponse<T>> {
+    private async request<T>(
+        method: string,
+        path: string[],
+        query: object,
+        body: object,
+        headers: Headers
+    ): Promise<HttpResponse<T>> {
         const url = this.createUrl(path, query);
         console.log(`[NET] ${method} ${url}`);
         await this.fakeWait();
@@ -68,19 +73,19 @@ export class ApiHttpService {
         }
     }
 
-    async get<T extends Response>(path: string[], query: object, headers: Headers): Promise<HttpResponse<T>> {
+    async get<T>(path: string[], query: object, headers: Headers): Promise<HttpResponse<T>> {
         return await this.request<T>('GET', path, query, {}, headers);
     }
 
-    async post<T extends Response>(path: string[], body: object, headers: Headers): Promise<HttpResponse<T>> {
+    async post<T>(path: string[], body: object, headers: Headers): Promise<HttpResponse<T>> {
         return await this.request<T>('POST', path, {}, body, headers);
     }
 
-    async delete<T extends Response>(path: string[], headers: Headers): Promise<HttpResponse<T>> {
+    async delete<T>(path: string[], headers: Headers): Promise<HttpResponse<T>> {
         return await this.request<T>('DELETE', path, {}, {}, headers);
     }
 
-    async patch<T extends { status: ResponseStatus }>(path: string[], body: object, headers: Headers): Promise<HttpResponse<T>> {
+    async patch<T>(path: string[], body: object, headers: Headers): Promise<HttpResponse<T>> {
         return await this.request<T>('PATCH', path, {}, body, headers);
     }
 
