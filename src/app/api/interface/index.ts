@@ -1,4 +1,4 @@
-export * from './response';
 export * from './data-types';
-export * from './endpoints';
+export * from './response';
+export * from './responses';
 
