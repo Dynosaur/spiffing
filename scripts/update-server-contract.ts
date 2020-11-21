@@ -1,6 +1,6 @@
 import { environment as env } from '../src/environments/environment';
 import { get as httpGet } from 'http';
-import { writeFile } from 'fs';
+import { existsSync, mkdirSync,writeFile } from 'fs';
 import * as chalk from 'chalk';
 
 const apiUrl = env.apiHost;
@@ -42,6 +42,19 @@ const update = (path: string, fileName: string): void => {
     });
 };
 
+function ensureDirectoriesExist(): void {
+    function ensureDirectoryExists(path: string): void {
+        if (!existsSync(path)) {
+            mkdirSync(path);
+        }
+    }
+    ensureDirectoryExists('./src/app/api/interface');
+    ensureDirectoryExists('./src/app/api/interface/responses');
+}
+
+ensureDirectoriesExist();
 update('/dev/data-types', 'src/app/api/interface/data-types.ts');
-update('/dev/endpoints', 'src/app/api/interface/endpoints.ts');
 update('/dev/response', 'src/app/api/interface/response.ts');
+update('/dev/responses/api', 'src/app/api/interface/responses/api-responses.ts');
+update('/dev/responses/auth', 'src/app/api/interface/responses/auth-responses.ts');
+update('/dev/responses/error', 'src/app/api/interface/responses/error-responses.ts');
