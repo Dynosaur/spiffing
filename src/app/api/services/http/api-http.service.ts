@@ -2,14 +2,13 @@ import { Injectable } from '@angular/core';
 import { environment as env } from '@spiffing/env/environment';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 
-export type HttpError = 'NoResponse';
-
-export interface HttpResponse<T> {
-    ok: boolean;
-    error?: HttpError;
-    errorMessage?: string;
-    payload?: T;
-}
+export type HttpResponse<T> = {
+    ok: true;
+    payload: T;
+} | {
+    ok: false;
+    error: 'NoConnection';
+};
 
 interface Headers {
     [header: string]: string;
@@ -56,18 +55,26 @@ export class ApiHttpService {
         await this.fakeWait();
 
         try {
-            const payload = await this.http.request<T>(method, url, { body, headers }).toPromise();
-            console.log(payload);
-            return { ok: true, payload };
+            return {
+                ok: true,
+                payload: await this.http.request<T>(method, url, { body, headers }).toPromise()
+            };
         } catch (error) {
-            console.error('[NET] Request Error!');
             if (error instanceof HttpErrorResponse) {
                 if (error.error instanceof ProgressEvent) {
-                    return { ok: false, error: 'NoResponse', errorMessage: 'Could not connect to our services.', payload: null };
-                } else if (error.error.status && error.error.message) {
-                    return { ok: true, payload: error.error };
+                    return {
+                        error: 'NoConnection',
+                        ok: false
+                    };
+                }
+                if (error.error.status) {
+                    return {
+                        ok: true,
+                        payload: error.error
+                    };
                 }
             }
+            console.error('[NET] Request Error!');
             console.log(error);
             throw error;
         }
