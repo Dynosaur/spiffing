@@ -1,26 +1,19 @@
-/* To learn more about this file see: https://angular.io/config/tsconfig. */
 {
   "compileOnSave": false,
   "compilerOptions": {
-    "baseUrl": "./",
-    "outDir": "./dist/out-tsc",
-    "sourceMap": true,
+    "baseUrl": ".",
     "declaration": false,
     "downlevelIteration": true,
     "experimentalDecorators": true,
-    "moduleResolution": "node",
     "importHelpers": true,
-    "target": "es2015",
+    "lib": ["es2018", "dom"],
     "module": "es2020",
-    "lib": [
-      "es2018",
-      "dom"
-    ],
+    "moduleResolution": "node",
+    "outDir": "./dist/out-tsc",
+    "sourceMap": true,
+    "target": "es2015",
     "paths": {
-      "@spiffing/services/*": ["src/app/services/*"],
-      "@spiffing/api/*": ["src/app/api/*"],
-      "@spiffing/env/*": ["src/environments/*"],
-      "interface": ["src/app/api/interface/index.ts"]
+      "spiff/*": ["src/*"]
     }
   }
 }
