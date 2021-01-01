@@ -1,14 +1,6 @@
 import { Injectable } from '@angular/core';
-import { environment as env } from '@spiffing/env/environment';
+import { environment as env } from 'spiff/environments/environment';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
-
-export type HttpResponse<T> = {
-    ok: true;
-    payload: T;
-} | {
-    ok: false;
-    error: 'NoConnection';
-};
 
 interface Headers {
     [header: string]: string;
@@ -22,7 +14,8 @@ export class ApiHttpService {
 
     constructor(private http: HttpClient) { }
 
-    private createUrl(path: string[], query: unknown): string {
+    private createUrl(path: string[], query: object): string {
+        Object.keys(query).forEach(key => { if (!query[key]) delete query[key]; });
         let fullPath = this.apiUrl + '/';
         fullPath += path.join('/');
         if (query) {
@@ -36,42 +29,22 @@ export class ApiHttpService {
         return fullPath;
     }
 
-    private fakeWait(): Promise<void> {
-        if (this.doFakeDelay) {
-            const delay = Math.random() * 2000 + 100;
-            return new Promise(resolve => setTimeout(() => resolve(), delay));
-        }
-    }
-
     private async request<T>(
         method: string,
         path: string[],
         query: object,
         body: object,
         headers: Headers
-    ): Promise<HttpResponse<T>> {
+    ): Promise<T> {
         const url = this.createUrl(path, query);
         console.log(`[NET] ${method} ${url}`);
-        await this.fakeWait();
 
         try {
-            return {
-                ok: true,
-                payload: await this.http.request<T>(method, url, { body, headers }).toPromise()
-            };
+            return await this.http.request<T>(method, url, { body, headers }).toPromise();
         } catch (error) {
             if (error instanceof HttpErrorResponse) {
                 if (error.error instanceof ProgressEvent) {
-                    return {
-                        error: 'NoConnection',
-                        ok: false
-                    };
-                }
-                if (error.error.status) {
-                    return {
-                        ok: true,
-                        payload: error.error
-                    };
+                    throw new Error('NoConnection');
                 }
             }
             console.error('[NET] Request Error!');
@@ -80,19 +53,19 @@ export class ApiHttpService {
         }
     }
 
-    async get<T>(path: string[], query: object, headers: Headers): Promise<HttpResponse<T>> {
+    async get<T>(path: string[], query: object, headers: Headers): Promise<T> {
         return await this.request<T>('GET', path, query, {}, headers);
     }
 
-    async post<T>(path: string[], body: object, headers: Headers): Promise<HttpResponse<T>> {
+    async post<T>(path: string[], body: object, headers: Headers): Promise<T> {
         return await this.request<T>('POST', path, {}, body, headers);
     }
 
-    async delete<T>(path: string[], headers: Headers): Promise<HttpResponse<T>> {
+    async delete<T>(path: string[], headers: Headers): Promise<T> {
         return await this.request<T>('DELETE', path, {}, {}, headers);
     }
 
-    async patch<T>(path: string[], body: object, headers: Headers): Promise<HttpResponse<T>> {
+    async patch<T>(path: string[], body: object, headers: Headers): Promise<T> {
         return await this.request<T>('PATCH', path, {}, body, headers);
     }
 
