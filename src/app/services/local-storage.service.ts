@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
-import { LocalStorageResult } from './local-storage-result';
+
+export const LOCAL_STORAGE_ACCOUNT_KEY = 'spf-account';
 
 @Injectable({
     providedIn: 'root'
@@ -10,12 +11,9 @@ export class LocalStorageService {
         localStorage.setItem(key, JSON.stringify(data));
     }
 
-    public read<T>(key: string): LocalStorageResult<T> {
+    public read<T>(key: string): T {
         const data = JSON.parse(localStorage.getItem(key));
-        return {
-            valid: !!data,
-            data: data || null
-        };
+        return data || null;
     }
 
     public delete(key: string): void {
