@@ -1,4 +1,4 @@
-import { EventEmitter, Injectable } from '@angular/core';
+import { Injectable } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 
 interface SnackbarData {
@@ -13,27 +13,20 @@ type SnackbarEvent = 'NEW' | 'DESTROYED';
     providedIn: 'root'
 })
 export class SnackbarService {
-
-    private notifications: SnackbarData[] = [];
     private visibleNotifs = 0;
     private maxVisibleNotifs = 3;
+    private notifications: SnackbarData[] = [];
 
-    // private snackEventStream = new EventEmitter<SnackbarEvent>();
-
-    constructor(private snack: MatSnackBar) {
-        // this.snackEventStream.subscribe(() => {console.log('hello')});
-    }
+    constructor(private snack: MatSnackBar) { }
 
     public push(content: string, button?: string, duration?: number): void {
         this.notifications.push({ content, button, duration });
-        console.log('HELLOOOOFUCKERS')
         this.onSnackEvent('NEW');
     }
 
     private onSnackEvent(event: SnackbarEvent): void {
         switch (event) {
             case 'NEW':
-                console.log('new');
                 if (this.visibleNotifs < this.maxVisibleNotifs) {
                     const notif = this.notifications.pop();
                     this.snack.open(notif.content, notif.button, { duration: notif.duration });
@@ -45,7 +38,6 @@ export class SnackbarService {
                 }
                 break;
             case 'DESTROYED':
-                console.log('destroyed');
                 this.visibleNotifs--;
         }
     }
