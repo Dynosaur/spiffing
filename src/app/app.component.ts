@@ -1,101 +1,68 @@
+import { DialogService } from 'spiff/app/services/dialog.service';
+import { ActivatedRoute } from '@angular/router';
+import { SnackbarService } from 'spiff/app/services/snackbar.service';
 import { Component, OnInit } from '@angular/core';
-import { UserAccountService, LOCAL_STORAGE_ACCOUNT_KEY } from './services/user-account/user-account.service';
-import { MatDialog } from '@angular/material/dialog';
-import { LocalStorageService } from './services/local-storage/local-storage.service';
-import { LoginDialogComponent } from './components/login-dialog/login-dialog.component';
-import { ApiHttpService } from '@spiffing/api/services/http/api-http.service';
-import { ActivatedRoute, Params } from '@angular/router';
-import { CreateAccountDialogComponent, CreatePostDialogComponent } from './ui/components/dialogs';
-import { SnackbarService } from './services/snackbar/snackbar.service';
-import { DialogService } from './services/dialog';
-
-interface LocalStorageCurrentUser {
-    username: string;
-    password: string;
-}
+import { UserAccountService } from 'spiff/app/services/user-account.service';
+import { LOCAL_STORAGE_ACCOUNT_KEY, LocalStorageService } from 'spiff/app/services/local-storage.service';
 
 @Component({
-    selector: 'app-root',
+    selector: 'spiff-root',
     templateUrl: './app.component.html',
-    styleUrls: ['./app.component.scss'],
-    providers: []
+    styleUrls: ['./app.component.scss']
 })
 export class AppComponent implements OnInit {
+    username = '';
+    signedIn = false;
+    loadingUsername = false;
 
-    public signedIn = false;
-    public username: string = null;
-    public loadingUsername = false;
-
-    constructor(private userAccount: UserAccountService,
-                private dialog: DialogService,
-                private ls: LocalStorageService,
-                private api: ApiHttpService,
+    constructor(public dialog: DialogService,
                 private route: ActivatedRoute,
-                private snack: SnackbarService) { }
+                private snack: SnackbarService,
+                public account: UserAccountService,
+                private localStorage: LocalStorageService) { }
 
     async ngOnInit(): Promise<void> {
-        this.route.queryParams.subscribe(this.handleDialogQuery.bind(this));
-        this.userAccount.signInEventStream.subscribe(this.onSignInEvent.bind(this));
-        const lsResult = this.ls.read<LocalStorageCurrentUser>(LOCAL_STORAGE_ACCOUNT_KEY);
-        if (lsResult.valid) {
-            this.loadingUsername = true;
-            const resp = await this.userAccount.login(lsResult.data.username, lsResult.data.password);
-            console.log(resp);
-            switch (resp.status) {
-                case 'FAILED':
-                case 'ABSENT':
-                    this.snack.push('Sorry, we were unable to log you in.', 'OK', 5000);
+        this.route.queryParams.subscribe(query => {
+            if (!query.dialog) return;
+            switch (query.dialog) {
+                case 'login':
+                    this.dialog.openLoginDialog();
                     break;
-                case 'OTHER':
-                    throw new Error('Cannot handle: ' + resp.message);
+                case 'post':
+                    if (query.id) this.dialog.openViewPostDialog(query.id);
+                    break;
+                default:
+                    throw new Error(`Unknown dialog query param provided: "${query.dialog}".`);
             }
-            this.loadingUsername = false;
+        });
+        this.account.signInEventStream.subscribe((value: boolean) => {
+            this.signedIn = value;
+            if (this.signedIn) {
+                this.username = this.account.username;
+            } else {
+                this.username = null;
+            }
+        });
+
+        // Log the user in automatically if there is data in local storage
+        try {
+            const readOperation = this.localStorage.read<any>(LOCAL_STORAGE_ACCOUNT_KEY);
+            if (readOperation) {
+                this.loadingUsername = true;
+                const login = await this.account.login(readOperation.username, readOperation.password);
+                if (!login) {
+                    this.snack.push('Sorry, we were unable to log you in.', 'OK', 10000);
+                    this.localStorage.delete(LOCAL_STORAGE_ACCOUNT_KEY);
+                }
+                this.loadingUsername = false;
+            }
+        } catch (error) {
+            if (error.message === 'NoConnection') {
+                this.snack.push('Sorry, we could not connect to our services.', 'OK', 10000);
+                this.loadingUsername = false;
+            } else {
+                throw error;
+            }
         }
-    }
-
-    private handleDialogQuery(query: Params): void {
-        if (!query.dialog) {
-            return;
-        }
-        switch (query.dialog) {
-            case 'register':
-                this.openRegisterDialog();
-                break;
-            case 'login':
-                this.openLoginDialog();
-                break;
-            case 'post':
-                this.openPostDialog();
-                break;
-        }
-    }
-
-    openLoginDialog(): void {
-        this.dialog.openLoginDialog();
-    }
-
-    openRegisterDialog(): void {
-        this.dialog.openRegisterDialog();
-    }
-
-    openPostDialog(): void {
-        this.dialog.openCreatePostDialog();
-    }
-
-    private onSignInEvent(value: boolean): void {
-        this.signedIn = value;
-        if (this.signedIn) {
-            this.username = this.userAccount.username;
-        } else {
-            this.username = null;
-        }
-    }
-
-    public signIn(): void {
-        this.dialog.openLoginDialog();
-    }
-
-    public signOut(): void {
-        this.userAccount.logOut();
     }
 }
