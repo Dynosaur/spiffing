@@ -53,7 +53,7 @@ export class DialogService {
 
     openViewPostDialog(postId: string): void {
         if (!this.viewPostDialog) {
-            const dialogRef = this.openDialog(ViewPostDialogComponent, 'post', { post_id: postId });
+            const dialogRef = this.openDialog(ViewPostDialogComponent, 'post', { id: postId });
             dialogRef.componentInstance.postId = postId;
         }
     }
