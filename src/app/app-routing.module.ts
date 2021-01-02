@@ -1,7 +1,7 @@
 import { NgModule } from '@angular/core';
-import { Routes, RouterModule } from '@angular/router';
-import { LandingPageComponent } from './components/landing-page/landing-page.component';
 import { NotFoundComponent } from './components/not-found/not-found.component';
+import { Routes, RouterModule } from '@angular/router';
+import { LandingPageComponent } from 'spiff/app/ui/views/landing-page';
 import { ProfileComponent, SettingsComponent } from './ui/views';
 
 const routes: Routes = [
