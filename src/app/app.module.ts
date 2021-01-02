@@ -2,9 +2,11 @@ import { NgModule } from '@angular/core';
 import { AppComponent } from './app.component';
 import { BrowserModule } from '@angular/platform-browser';
 import { MaterialModule } from './material.module';
+import { CommaNumberPipe } from 'spiff/app/pipes/comma-number.pipe';
 import { DialogComponent } from './ui/components';
 import { AppRoutingModule } from './app-routing.module';
 import { HttpClientModule } from '@angular/common/http';
+import { PrettyNumberPipe } from 'spiff/app/pipes/pretty-number.pipe';
 import { NotFoundComponent } from './components/not-found/not-found.component';
 import { FormFieldComponent } from './components/form-field/form-field.component';
 import { LandingPageComponent } from 'spiff/app/ui/views/landing-page';
@@ -21,7 +23,9 @@ import { CreateAccountDialogComponent, DeleteAccountConfirmDialogComponent, Chan
     declarations: [
         AppComponent,
         ButtonComponent,
+        CommaNumberPipe,
         DialogComponent,
+        PrettyNumberPipe,
         ProfileComponent,
         NotFoundComponent,
         SettingsComponent,
