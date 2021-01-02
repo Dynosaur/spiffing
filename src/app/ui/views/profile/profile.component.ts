@@ -1,77 +1,73 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
-import { UserAccountService } from 'src/app/services/user-account/user-account.service';
-import { Post } from '../../../services/post/post-status';
-import { PostService } from '@spiffing/services/post/post.service';
+import { Post } from 'spiff/app/api/interface/data-types';
+import { PostService } from 'spiff/app/services/post.service';
 import { Subscription } from 'rxjs';
-import { ApiEndpointService } from '@spiffing/api/services/endpoint/api-endpoint.service';
-import { DialogService } from '../../../services/dialog';
+import { DialogService } from 'spiff/app/services/dialog.service';
+import { ActivatedRoute } from '@angular/router';
+import { ApiEndpointService } from 'spiff/app/api/services/api-endpoint.service';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 
 @Component({
-    selector: 'app-profile',
+    selector: 'spiff-view-profile',
     templateUrl: './profile.component.html',
     styleUrls: ['./profile.component.scss']
 })
 export class ProfileComponent implements OnInit, OnDestroy {
-
-    username: string;
-    screenName: string;
-    createdTimestamp: number;
+    id: string;
     posts: Post[];
-
+    username: string;
+    screenname: string;
     loadingPosts = true;
-
     postStream: Subscription;
+    createdTimestamp: number;
 
-    constructor(private user: UserAccountService,
-                private post: PostService,
+    constructor(private post: PostService,
+                public dialog: DialogService,
                 private route: ActivatedRoute,
-                private api: ApiEndpointService,
-                public dialog: DialogService) {
+                private api: ApiEndpointService) {
         this.postStream = post.postEventStream.subscribe(() => this.refreshPosts());
     }
 
-    public ngOnDestroy(): void {
+    ngOnDestroy(): void {
         this.postStream.unsubscribe();
     }
 
-    public ngOnInit(): void {
+    ngOnInit(): void {
         this.route.params.subscribe(async params => {
             this.username = params.username;
             this.refreshPosts();
-            const userDataReq = await this.api.getUser(this.username);
-            switch (userDataReq.status) {
-                case 'OK':
-                    this.screenName = userDataReq.data.screenName;
-                    this.createdTimestamp = userDataReq.data.created;
-                    break;
-                case 'NO_RESULTS':
-                    throw new Error('Unexpected NO_RESULTS status from API.');
+            const userRequest = await this.api.getUser(this.username);
+            if (userRequest.ok) {
+                this.id = userRequest.user._id;
+                this.screenname = userRequest.user.screenname;
+                this.createdTimestamp = userRequest.user.created;
+            } else {
+                console.error('idk man');
             }
         });
     }
 
-    public async refreshPosts(): Promise<void> {
-        this.posts = await this.getPosts();
+    async refreshPosts(): Promise<void> {
+        const posts = await this.getPosts();
+        this.posts = posts.sort((a, b) => {
+            if (a.date < b.date) {
+                return 1;
+            } else if (b.date < a.date) {
+                return -1;
+            } else {
+                return 0;
+            }
+        });
     }
 
-    /*
-        TODO: Fix that if (response.count) to just take the response.posts (Requires reworking PostService)
-    */
-    public async getPosts(): Promise<Post[]> {
+    async getPosts(): Promise<Post[]> {
         this.loadingPosts = true;
-        const response = await this.post.getPostsByUser(this.username);
+        const response = await this.post.getPostsByUserId(this.id);
         this.loadingPosts = false;
-        if (response.count) {
-            return response.posts;
-        } else {
-            return [];
-        }
-
+        return response;
     }
 
     clickPost(id: string): void {
-        console.log(id);
+        this.dialog.openViewPostDialog(id);
     }
 
 }
