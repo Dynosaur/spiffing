@@ -39,7 +39,6 @@ export class LandingPageComponent implements OnInit {
     }
 
     openPost(id: string): void {
-        console.log('hello');
         this.dialog.openViewPostDialog(id);
     }
 }
