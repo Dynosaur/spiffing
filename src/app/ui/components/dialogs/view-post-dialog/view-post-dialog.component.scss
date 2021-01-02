@@ -1,7 +1,9 @@
 .account-info {
     display: flex;
+    cursor: pointer;
+    width: fit-content;
     align-items: center;
-    margin-bottom: 16px;
+    padding-bottom: 8px;
 
     .mini-profile-pic {
         display: inline-block;
