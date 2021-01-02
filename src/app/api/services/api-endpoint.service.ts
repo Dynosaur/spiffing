@@ -27,8 +27,8 @@ export class ApiEndpointService {
         return response;
     }
 
-    async getUser(username: string): Promise<GetUser.Tx> {
-        const response = await this.api.get<GetUser.Tx>(['api', 'user', username], {}, {});
+    async getUser(id: string): Promise<GetUser.Tx> {
+        const response = await this.api.get<GetUser.Tx>(['api', 'user', id], {}, {});
         return response;
     }
 
