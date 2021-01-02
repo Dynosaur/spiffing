@@ -1,9 +1,21 @@
 <ng-container *ngIf="author; else loading">
     <h1 mat-dialog-title>{{ post.title }}</h1>
     <div mat-dialog-content>
-        <div class="account-info" (click)="toProfile(author.username)">
-            <img class="mini-profile-pic" src="/assets/anon.png">
-            <h3 class="username">{{ author.username }}</h3>
+        <div class="post-header">
+            <div class="rate-section">
+                <div class="rater">
+                    <mat-icon title="Like this post" (click)="likePost()">expand_less</mat-icon>
+                    <p [title]="post.likes | commaNumber">{{ post.likes | prettyNumber }}</p>
+                </div>
+                <div class="rater">
+                    <mat-icon title="Dislike this post" (click)="dislikePost()">expand_more</mat-icon>
+                    <p [title]="post.dislikes | commaNumber">{{ post.dislikes | prettyNumber }}</p>
+                </div>
+            </div>
+            <div class="account-info" (click)="toProfile(author.username)">
+                <img class="mini-profile-pic" src="/assets/anon.png">
+                <h3 class="username">{{ author.username }}</h3>
+            </div>
         </div>
         <hr>
         <p>{{ post.content }}</p>

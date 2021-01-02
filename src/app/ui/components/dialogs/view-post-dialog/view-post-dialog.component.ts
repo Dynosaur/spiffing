@@ -3,6 +3,7 @@ import { Post, User } from 'spiff/app/api/interface';
 import { MatDialogRef } from '@angular/material/dialog';
 import { Component, OnInit } from '@angular/core';
 import { ApiEndpointService } from 'spiff/app/api/services/api-endpoint.service';
+import { UserAccountService } from 'spiff/app/services/user-account.service';
 
 @Component({
     selector: 'spiff-view-post-dialog',
@@ -14,7 +15,10 @@ export class ViewPostDialogComponent implements OnInit {
     author: User;
     postId: string;
 
-    constructor(private api: ApiEndpointService, private router: Router, private dialog: MatDialogRef<ViewPostDialogComponent>) { }
+    constructor(private api: ApiEndpointService,
+                private router: Router,
+                private dialog: MatDialogRef<ViewPostDialogComponent>,
+                private account: UserAccountService) { }
 
     async ngOnInit(): Promise<void> {
         const postRequest = await this.api.getPost(this.postId);
@@ -29,6 +33,20 @@ export class ViewPostDialogComponent implements OnInit {
     toProfile(username: string): void {
         this.router.navigate(['user', username]);
         this.dialog.close();
+    }
+
+    async likePost(): Promise<void> {
+        const rateRequest = await this.api.ratePost(this.account.username, this.account.password, this.postId, 1);
+        if (rateRequest.ok) {
+            this.post.likes++;
+        }
+    }
+
+    async dislikePost(): Promise<void> {
+        const rateRequest = await this.api.ratePost(this.account.username, this.account.password, this.postId, -1);
+        if (rateRequest.ok) {
+            this.post.dislikes++;
+        }
     }
 
 }

@@ -1,19 +1,36 @@
-.account-info {
+.post-header {
     display: flex;
-    cursor: pointer;
-    width: fit-content;
-    align-items: center;
-    padding-bottom: 8px;
 
-    .mini-profile-pic {
-        display: inline-block;
-        width: 32px;
-        height: 32px;
-        border-radius: 100%;
-        margin-right: 8px;
+    .rate-section {
+        margin-right: 16px;
+
+        .rater {
+            display: flex;
+            justify-content: baseline;
+
+            mat-icon {
+                user-select: none;
+            }
+        }
     }
-    .username {
-        display: inline-block;
-        margin: 0;
+
+    .account-info {
+        display: flex;
+        cursor: pointer;
+        width: fit-content;
+        align-items: center;
+        padding-bottom: 8px;
+
+        .mini-profile-pic {
+            display: inline-block;
+            width: 32px;
+            height: 32px;
+            border-radius: 100%;
+            margin-right: 8px;
+        }
+        .username {
+            display: inline-block;
+            margin: 0;
+        }
     }
 }
