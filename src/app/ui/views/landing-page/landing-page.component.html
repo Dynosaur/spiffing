@@ -1,0 +1,25 @@
+<mat-card class="landing-page-container">
+    <ng-container *ngIf="!loadingPosts; else spinner">
+        <ng-container [ngSwitch]="postStatus">
+            <ng-container *ngSwitchCase="'Ok'">
+                <mat-card *ngFor="let post of posts" class="landing-page-post" (click)="openPost(post._id)">
+                    <h3 class="landing-page-post-title">{{ post.title }}</h3>
+                    <mat-divider></mat-divider>
+                    <p class="landing-page-post-content">{{ post.content }}</p>
+                </mat-card>
+            </ng-container>
+            <ng-container *ngSwitchCase="'None'">
+                <p>No posts!
+                    <span (click)="dialog.openCreatePostDialog()" class="underline-hover">Why not make one?</span>
+                </p>
+            </ng-container>
+            <ng-container *ngSwitchCase="'Error'">
+                <p>Looks like we couldn't load any posts</p>
+                <a (click)="fetchPosts()">Retry</a>
+            </ng-container>
+        </ng-container>
+    </ng-container>
+    <ng-template #spinner>
+        <mat-spinner class="landing-page-spinner"></mat-spinner>
+    </ng-template>
+</mat-card>
