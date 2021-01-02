@@ -1,9 +1,9 @@
-import { Component, OnInit } from '@angular/core';
-import { FormControl } from '@angular/forms';
-import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
-import { UserAccountService } from '@spiffing/services/user-account/user-account.service';
-import { ChangeUsernameDialogComponent, DeleteAccountConfirmDialogComponent } from '../../components/dialogs';
+import { MatDialog } from '@angular/material/dialog';
+import { FormControl } from '@angular/forms';
+import { Component, OnInit } from '@angular/core';
+import { UserAccountService } from 'spiff/app/services/user-account.service';
+import { ChangeUsernameDialogComponent, DeleteAccountConfirmDialogComponent } from 'spiff/app/ui/components/dialogs';
 
 @Component({
     selector: 'spiff-settings-view',
@@ -11,22 +11,17 @@ import { ChangeUsernameDialogComponent, DeleteAccountConfirmDialogComponent } fr
     styleUrls: ['./settings.component.scss']
 })
 export class SettingsComponent implements OnInit {
-
     usernameFormControl = new FormControl(this.user.username);
 
     constructor(private user: UserAccountService, private dialog: MatDialog, private router: Router) { }
 
     ngOnInit(): void {
-        if (!this.user.isSignedIn) {
-            this.router.navigate(['']);
-        }
+        if (!this.user.isSignedIn) this.router.navigate(['']);
     }
 
     isUsernameInputClean(): boolean {
         console.log(this.usernameFormControl.value);
-        if (this.usernameFormControl.value === null) {
-            return true;
-        }
+        if (this.usernameFormControl.value === null) return true;
         return this.usernameFormControl.value === this.user.username;
     }
 
@@ -37,5 +32,4 @@ export class SettingsComponent implements OnInit {
     deleteAccount(): void {
         this.dialog.open(DeleteAccountConfirmDialogComponent);
     }
-
 }
