@@ -55,6 +55,6 @@ function ensureDirectoriesExist(): void {
 ensureDirectoriesExist();
 update('/dev/data-types', 'src/app/api/interface/data-types.ts');
 update('/dev/response', 'src/app/api/interface/response.ts');
-update('/dev/responses/api', 'src/app/api/interface/responses/api-responses.ts');
-update('/dev/responses/auth', 'src/app/api/interface/responses/auth-responses.ts');
-update('/dev/responses/error', 'src/app/api/interface/responses/error-responses.ts');
+update('/dev/responses/api-responses', 'src/app/api/interface/responses/api-responses.ts');
+update('/dev/responses/auth-endpoints', 'src/app/api/interface/responses/auth-responses.ts');
+update('/dev/responses/error-responses', 'src/app/api/interface/responses/error-responses.ts');
