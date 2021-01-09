@@ -46,6 +46,9 @@ export class ApiHttpService {
                 if (error.error instanceof ProgressEvent) {
                     throw new Error('NoConnection');
                 }
+                if (error.error.hasOwnProperty('error') && error.error.hasOwnProperty('ok')) {
+                    return error.error;
+                }
             }
             console.error('[NET] Request Error!');
             console.log(error);
