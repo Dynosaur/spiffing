@@ -20,7 +20,7 @@ export class UserAccountService {
 
     public async login(username: string, password: string): Promise<boolean> {
         this.loginInProgress = true;
-        const authenticateRequest = await this.api.authenticate(username, password);
+        const authenticateRequest = await this.api.authorize(username, password);
         if (authenticateRequest.ok) {
             this.username = username;
             this.password = password;
