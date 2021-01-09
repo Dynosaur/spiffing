@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { ApiHttpService } from 'spiff/app/api/services/api-http.service';
-import { IAuthorize, ICreatePost, IDeregister, IGetPost, IGetPosts, IGetUser, IPatch, IRatePost, IRegister } from 'spiff/app/api/interface';
+import { IAuthorize, ICreatePost, IDeregister, IGetPost, IGetPosts, IGetRatedPosts, IGetUser, IPatch, IRatePost, IRegister } from 'spiff/app/api/interface';
 
 @Injectable({
     providedIn: 'root'
@@ -65,6 +65,12 @@ export class ApiEndpointService {
 
     async ratePost(username: string, password: string, postId: string, rating: number): Promise<IRatePost.Tx> {
         return await this.api.post<IRatePost.Tx>(['api', 'rate', 'post', postId], { rating }, {
+            authorization: ApiEndpointService.basicAuth(username, password)
+        });
+    }
+
+    async getRatedPosts(username: string, password: string, uid: string): Promise<IGetRatedPosts.Tx> {
+        return await this.api.get<IGetRatedPosts.Tx>(['api', 'rated', uid], { }, {
             authorization: ApiEndpointService.basicAuth(username, password)
         });
     }
