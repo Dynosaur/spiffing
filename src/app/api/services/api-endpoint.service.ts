@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { ApiHttpService } from 'spiff/app/api/services/api-http.service';
-import { Authenticate, CreatePost, Deregister, GetPost, GetPosts, GetUser, Patch, RatePost, Register } from 'spiff/app/api/interface';
+import { IAuthorize, ICreatePost, IDeregister, IGetPost, IGetPosts, IGetUser, IPatch, IRatePost, IRegister } from 'spiff/app/api/interface';
 
 @Injectable({
     providedIn: 'root'
@@ -13,13 +13,13 @@ export class ApiEndpointService {
         return 'Basic ' + btoa(username + ':' + password);
     }
 
-    async getPosts(id: string): Promise<GetPosts.Tx> {
-        return await this.api.get<GetPosts.Tx>(['api', 'posts'], { author: id }, { });
+    async getPosts(id: string): Promise<IGetPosts.Tx> {
+        return await this.api.get<IGetPosts.Tx>(['api', 'posts'], { author: id }, { });
     }
 
-    async createPost(uid: string, username: string, password: string, title: string, content: string): Promise<CreatePost.Tx> {
+    async createPost(uid: string, username: string, password: string, title: string, content: string): Promise<ICreatePost.Tx> {
         const authorization = ApiEndpointService.basicAuth(username, password);
-        const response = await this.api.post<CreatePost.Tx>(['api', 'post'], {
+        const response = await this.api.post<ICreatePost.Tx>(['api', 'post'], {
             author: uid,
             content,
             title
@@ -27,24 +27,24 @@ export class ApiEndpointService {
         return response;
     }
 
-    async getUser(id: string): Promise<GetUser.Tx> {
-        const response = await this.api.get<GetUser.Tx>(['api', 'user', id], {}, {});
+    async getUser(id: string): Promise<IGetUser.Tx> {
+        const response = await this.api.get<IGetUser.Tx>(['api', 'user', id], {}, {});
         return response;
     }
 
-    async register(username: string, password: string): Promise<Register.Tx> {
+    async register(username: string, password: string): Promise<IRegister.Tx> {
         const authorization = ApiEndpointService.basicAuth(username, password);
-        return await this.api.post<Register.Tx>(['api', 'user', username], {}, { authorization });
+        return await this.api.post<IRegister.Tx>(['api', 'user', username], {}, { authorization });
     }
 
-    async authenticate(username: string, password: string): Promise<Authenticate.Tx> {
+    async authorize(username: string, password: string): Promise<IAuthorize.Tx> {
         const authorization = ApiEndpointService.basicAuth(username, password);
-        return await this.api.post<Authenticate.Tx>(['api', 'authenticate'], {}, { authorization });
+        return await this.api.post<IAuthorize.Tx>(['api', 'authorize'], {}, { authorization });
     }
 
-    async deregister(username: string, password: string): Promise<Deregister.Tx> {
+    async deregister(username: string, password: string): Promise<IDeregister.Tx> {
         const authorization = ApiEndpointService.basicAuth(username, password);
-        return await this.api.delete<Deregister.Tx>(['api', 'user', username], { authorization });
+        return await this.api.delete<IDeregister.Tx>(['api', 'user', username], { authorization });
     }
 
     async updateUserData(
@@ -54,17 +54,17 @@ export class ApiEndpointService {
             username?: string;
             password?: string;
         }
-    ): Promise<Patch.Tx> {
+    ): Promise<IPatch.Tx> {
         const authorization = ApiEndpointService.basicAuth(username, password);
-        return await this.api.patch<Patch.Tx>(['api', 'user', username], update, { authorization });
+        return await this.api.patch<IPatch.Tx>(['api', 'user', username], update, { authorization });
     }
 
-    async getPost(id: string): Promise<GetPost.Tx> {
-        return await this.api.get<GetPost.Tx>(['api', 'post', id], {}, {});
+    async getPost(id: string): Promise<IGetPost.Tx> {
+        return await this.api.get<IGetPost.Tx>(['api', 'post', id], {}, {});
     }
 
-    async ratePost(username: string, password: string, postId: string, rating: number): Promise<RatePost.Tx> {
-        return await this.api.post<RatePost.Tx>(['api', 'rate', 'post', postId], { rating }, {
+    async ratePost(username: string, password: string, postId: string, rating: number): Promise<IRatePost.Tx> {
+        return await this.api.post<IRatePost.Tx>(['api', 'rate', 'post', postId], { rating }, {
             authorization: ApiEndpointService.basicAuth(username, password)
         });
     }
