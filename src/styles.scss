@@ -30,3 +30,7 @@ a {
     border-radius: 100%;
     margin-right: 8px;
 }
+
+.hover-underline {
+    &:hover { text-decoration: underline; }
+}
