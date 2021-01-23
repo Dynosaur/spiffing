@@ -30,8 +30,8 @@ export class PostService {
         return this.getPostsByUserId(this.user.id);
     }
 
-    public async getPostsByUserId(id: string): Promise<Post[]> {
-        const postsRequest = await this.api.getPosts(id);
+    public async getPostsByUserId(id: string, includeAuthorUser = false): Promise<Post[]> {
+        const postsRequest = await this.api.getPosts(id, includeAuthorUser);
         if (postsRequest.ok === true) {
             return postsRequest.posts;
         } else {

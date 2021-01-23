@@ -13,8 +13,11 @@ export class ApiEndpointService {
         return 'Basic ' + btoa(username + ':' + password);
     }
 
-    async getPosts(id: string): Promise<IGetPosts.Tx> {
-        return await this.api.get<IGetPosts.Tx>(['api', 'posts'], { author: id }, { });
+    async getPosts(id: string, includeAuthorUser = false): Promise<IGetPosts.Tx> {
+        return await this.api.get<IGetPosts.Tx>(['api', 'posts'], {
+            author: id,
+            ...includeAuthorUser && { include: 'authorUser' }
+        }, { });
     }
 
     async createPost(uid: string, username: string, password: string, title: string, content: string): Promise<ICreatePost.Tx> {
