@@ -1,4 +1,5 @@
 import { NgModule } from '@angular/core';
+import { DateAgoPipe } from 'spiff/app/pipes/date-ago.pipe';
 import { AppComponent } from './app.component';
 import { BrowserModule } from '@angular/platform-browser';
 import { MaterialModule } from './material.module';
@@ -21,6 +22,7 @@ import { CreateAccountDialogComponent, DeleteAccountConfirmDialogComponent, Chan
 
 @NgModule({
     declarations: [
+        DateAgoPipe,
         AppComponent,
         ButtonComponent,
         CommaNumberPipe,
