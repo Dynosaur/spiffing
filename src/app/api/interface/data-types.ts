@@ -2,7 +2,7 @@
 
 export interface Post {
     _id: string;
-    author: string;
+    author: string | User;
     comments: string[];
     content: string;
     date: number;

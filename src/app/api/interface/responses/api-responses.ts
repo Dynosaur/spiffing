@@ -63,3 +63,14 @@ export namespace IGetRatedPosts {
 
     export type Tx = ErrorTx | Success;
 }
+
+export namespace IGetUsers {
+    export type ErrorTx = IMissingDataError;
+
+    export interface Success extends IOkResponse {
+        users: User[];
+        missing: string[];
+    }
+
+    export type Tx = ErrorTx | Success;
+}
