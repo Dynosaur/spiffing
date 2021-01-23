@@ -2,11 +2,31 @@
     <ng-container *ngIf="!loadingPosts; else spinner">
         <ng-container [ngSwitch]="postStatus">
             <ng-container *ngSwitchCase="'Ok'">
-                <mat-card *ngFor="let post of posts" class="landing-page-post" (click)="openPost(post._id)">
-                    <h3 class="landing-page-post-title">{{ post.title }}</h3>
-                    <mat-divider></mat-divider>
-                    <p class="landing-page-post-content">{{ post.content }}</p>
-                </mat-card>
+                <div *ngFor="let post of posts" class="landing-page-post">
+                    <div class="rate-container">
+                        <div class="rate-section" [ngStyle]="{'color': isPostLiked(post._id) ? 'rgb(0,200,0)' : 'black'}">
+                            <mat-icon>expand_less</mat-icon>
+                            <p class="rate-value">{{ post.likes | prettyNumber }}</p>
+                        </div>
+                        <div class="rate-section" [ngStyle]="{'color': isPostDisliked(post._id) ? 'rgb(255,100,0)' : 'black'}">
+                            <mat-icon>expand_more</mat-icon>
+                            <p class="rate-value">{{ post.dislikes | prettyNumber }}</p>
+                        </div>
+                    </div>
+                    <div>
+                        <p class="post-title hover-underline" (click)="openPost(post._id)">{{ post.title }}</p>
+                        <div class="user-details">
+                            <p>
+                                <span [title]="toTimestamp(post)">submitted {{ post.date | dateAgo }} ago</span> by
+                                <span
+                                    title="Click to go to profile"
+                                    [routerLink]="'/user/' + post.author.username" class="user-link hover-underline">
+                                        u/{{ post.author.username }}
+                                </span>
+                            </p>
+                        </div>
+                    </div>
+                </div>
             </ng-container>
             <ng-container *ngSwitchCase="'None'">
                 <p>No posts!

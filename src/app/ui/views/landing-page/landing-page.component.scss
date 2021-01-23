@@ -2,27 +2,38 @@
     width: 80%;
     margin: auto;
     padding: 10px 15px;
-    text-align: center;
     background-color: white;
 
     * { margin: 0; }
 
-    .landing-page-spinner {
-        margin: auto;
-    }
+    .landing-page-spinner { margin: auto; }
 
     .landing-page-post {
-        width: 80%;
-        margin: 10px auto;
-        padding: 10px;
-        text-align: left;
+        display: flex;
+        margin: 10px 0;
 
-        .landing-page-post-title {
-            font-weight: 500;
+        .rate-container {
+            margin-right: 1em;
+
+            .rate-section { display: flex; }
         }
 
-        .landing-page-post-content {
-            margin-top: 5px;
+        .user-details {
+            display: flex;
+            align-items: center;
+            font-size: 13px;
+
+            .user-link {
+                cursor: pointer;
+                outline: none;
+            }
+        }
+
+        .post-title {
+            width: fit-content;
+            height: fit-content;
+            font-weight: 500;
+            cursor: pointer;
         }
     }
 }
