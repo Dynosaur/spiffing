@@ -1,9 +1,13 @@
-import { Post } from 'spiff/app/api/interface';
 import { Router } from '@angular/router';
+import { Post, User } from 'spiff/app/api/interface';
 import { PostService } from 'spiff/app/services/post.service';
 import { DialogService } from 'spiff/app/services/dialog.service';
 import { Component, OnInit } from '@angular/core';
 import { UserAccountService } from 'spiff/app/services/user-account.service';
+
+interface PostWithAuthorUser extends Post {
+    author: User;
+}
 
 @Component({
     selector: 'spiff-landing-page',
@@ -11,7 +15,7 @@ import { UserAccountService } from 'spiff/app/services/user-account.service';
     styleUrls: ['./landing-page.component.scss']
 })
 export class LandingPageComponent implements OnInit {
-    posts: Post[];
+    posts: PostWithAuthorUser[];
     loadingPosts: boolean;
     postStatus: 'Ok' | 'None' | 'Error' = 'None';
 
