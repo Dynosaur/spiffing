@@ -34,12 +34,12 @@ export class ProfileComponent implements OnInit, OnDestroy {
     ngOnInit(): void {
         this.route.params.subscribe(async params => {
             this.username = params.username;
-            this.refreshPosts();
             const userRequest = await this.api.getUser(this.username);
             if (userRequest.ok) {
                 this.id = userRequest.user._id;
                 this.screenname = userRequest.user.screenname;
                 this.createdTimestamp = userRequest.user.created;
+                this.refreshPosts();
             } else {
                 console.error('idk man');
             }
