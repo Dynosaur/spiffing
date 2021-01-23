@@ -27,6 +27,7 @@ export class ViewPostDialogComponent implements OnInit {
         const postRequest = await this.api.getPost(this.postId);
         if (postRequest.ok) {
             this.post = postRequest.post;
+            this.post.author = this.post.author as string;
             const userRequest = await this.api.getUser(this.post.author);
             if (userRequest.ok) this.author = userRequest.user;
             if (this.account.ratedMap.status === 'Loading') {
