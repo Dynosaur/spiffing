@@ -14,7 +14,7 @@
                         </div>
                     </div>
                     <div>
-                        <p class="post-title hover-underline" (click)="openPost(post._id)">{{ post.title }}</p>
+                        <p class="post-title hover-underline" [routerLink]="'/post/' + post._id">{{ post.title }}</p>
                         <div class="user-details">
                             <p>
                                 <span [title]="toTimestamp(post)">submitted {{ post.date | dateAgo }} ago</span> by

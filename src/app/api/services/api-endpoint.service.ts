@@ -20,6 +20,22 @@ export class ApiEndpointService {
         }, { });
     }
 
+    async getPostsImproved(request: {
+        author?: string;
+        id?: string;
+        ids?: string;
+        title?: string;
+        authorUser?: boolean;
+    }): Promise<IGetPosts.Tx> {
+        return await this.api.get(['api', 'posts'], {
+            ...request.author && { author: request.author },
+            ...request.id && { id: request.id },
+            ...request.ids && { ids: request.ids },
+            ...request.title && { title: request.title },
+            ...request.authorUser && { include: 'authorUser' }
+        }, {});
+    }
+
     async createPost(uid: string, username: string, password: string, title: string, content: string): Promise<ICreatePost.Tx> {
         const authorization = ApiEndpointService.basicAuth(username, password);
         const response = await this.api.post<ICreatePost.Tx>(['api', 'post'], {

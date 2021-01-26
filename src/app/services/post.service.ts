@@ -1,7 +1,13 @@
-import { Post } from 'spiff/app/api/interface';
+import { IGetPosts, Post } from 'spiff/app/api/interface';
 import { ApiEndpointService } from 'spiff/app/api/services/api-endpoint.service';
 import { UserAccountService } from 'spiff/app/services/user-account.service';
 import { Injectable, EventEmitter } from '@angular/core';
+
+export class GetPostError extends Error {
+    constructor(message: string, public error: IGetPosts.ErrorTx['error']) {
+        super(message);
+    }
+}
 
 @Injectable({
     providedIn: 'root'
@@ -38,5 +44,12 @@ export class PostService {
             console.error(`Error while requesting posts: ${postsRequest.error}`);
             return [];
         }
+    }
+
+    async getPostById(id: string, includeAuthorUser = false): Promise<Post> {
+        const postRequest = await this.api.getPostsImproved({ id, authorUser: includeAuthorUser });
+        if (postRequest.ok === true) {
+            return postRequest.posts[0];
+        } else throw new GetPostError(`Error while requesting post ${id}: ${postRequest.error}`, postRequest.error);
     }
 }

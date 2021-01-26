@@ -56,19 +56,19 @@ export class ApiHttpService {
         }
     }
 
-    async get<T>(path: string[], query: object, headers: Headers): Promise<T> {
+    async get<T>(path: string[], query: object, headers: Headers = {}): Promise<T> {
         return await this.request<T>('GET', path, query, {}, headers);
     }
 
-    async post<T>(path: string[], body: object, headers: Headers): Promise<T> {
+    async post<T>(path: string[], body: object, headers: Headers = {}): Promise<T> {
         return await this.request<T>('POST', path, {}, body, headers);
     }
 
-    async delete<T>(path: string[], headers: Headers): Promise<T> {
+    async delete<T>(path: string[], headers: Headers = {}): Promise<T> {
         return await this.request<T>('DELETE', path, {}, {}, headers);
     }
 
-    async patch<T>(path: string[], body: object, headers: Headers): Promise<T> {
+    async patch<T>(path: string[], body: object, headers: Headers = {}): Promise<T> {
         return await this.request<T>('PATCH', path, {}, body, headers);
     }
 

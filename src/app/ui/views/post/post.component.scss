@@ -1,0 +1,61 @@
+.background {
+    background-color: rgb(220,220,220);
+
+    .foreground {
+        width: 95%;
+        margin: auto;
+        padding: 8px;
+        border-radius: 5px;
+        background-color: rgb(245,245,245);
+
+        .not-found {
+            text-align: center;
+
+            img {
+                width: fit-content;
+                margin: auto;
+            }
+
+            .error-message { font-family: monospace; }
+        }
+
+        .post {
+            padding-top: 1em;
+            display: flex;
+
+            p { margin-bottom: 0; }
+
+            .post-contents {
+                margin-left: 20px;
+
+                .title { font-size: 20px; }
+
+                .submission-info {
+                    font-size: 12px;
+
+                    .profile-link {
+                        color: rgb(0,100,200);
+                        outline: none;
+                        font-weight: 500;
+                        cursor: pointer;
+                    }
+                }
+
+                .post-content {
+                    padding: 5px;
+                    border: 1px solid rgb(0,100,200);
+                    background-color: #fff;
+                    border-radius: 5px;
+                }
+            }
+        }
+    }
+}
+
+.pop-body {
+    width: 95%;
+    margin: 10px auto 0 auto;
+    background-color: white;
+    padding: 5px;
+    
+}

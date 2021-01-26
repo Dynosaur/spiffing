@@ -1,0 +1,36 @@
+<div class="background">
+    <div class="foreground">
+        <div *ngIf="loading; else loaded" class="loading-display">
+            <mat-spinner></mat-spinner>
+            <p>Loading</p>
+        </div>
+        <ng-template #loaded>
+            <div *ngIf="canDisplay; else cannotDisplay" class="post">
+                <spiff-rate-counter
+                    [likes]="post.likes"
+                    [liked]="liked"
+                    [onLike]="likePost.bind(this)"
+                    [dislikes]="post.dislikes"
+                    [disliked]="disliked"
+                    [onDislike]="dislikePost.bind(this)">
+                </spiff-rate-counter>
+                <div class="post-contents">
+                    <p class="title">{{ post.title }}</p>
+                    <p class="submission-info">
+                        Submitted
+                        <span [title]="date"> {{ post.date | dateAgo }} ago by </span>
+                        <span class="profile-link" [routerLink]="'/user/' + post.author.username">{{ post.author.username }}</span>
+                    </p>
+                    <div class="post-content">{{ post.content }}</div>
+                </div>
+            </div>
+            <ng-template #cannotDisplay>
+                <div class="not-found">
+                    <h2>Sorry, we couldn't find what you were looking for.</h2>
+                    <img src="/assets/not-found.png" class="public-image">
+                    <p class="error-message">Error: {{ errorMessage }}</p>
+                </div>
+            </ng-template>
+        </ng-template>
+    </div>
+</div>
