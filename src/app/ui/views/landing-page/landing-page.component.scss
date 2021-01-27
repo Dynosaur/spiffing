@@ -12,10 +12,8 @@
         display: flex;
         margin: 10px 0;
 
-        .rate-container {
+        spiff-rate-counter {
             margin-right: 1em;
-
-            .rate-section { display: flex; }
         }
 
         .user-details {

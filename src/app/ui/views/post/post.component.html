@@ -7,12 +7,11 @@
         <ng-template #loaded>
             <div *ngIf="canDisplay; else cannotDisplay" class="post">
                 <spiff-rate-counter
-                    [likes]="post.likes"
+                    [post]="post"
                     [liked]="liked"
-                    [onLike]="likePost.bind(this)"
-                    [dislikes]="post.dislikes"
+                    (like)="likePost($event)"
                     [disliked]="disliked"
-                    [onDislike]="dislikePost.bind(this)">
+                    (dislike)="dislikePost($event)">
                 </spiff-rate-counter>
                 <div class="post-contents">
                     <p class="title">{{ post.title }}</p>

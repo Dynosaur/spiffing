@@ -1,4 +1,5 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { Post } from 'spiff/app/api/interface';
 
 @Component({
     selector: 'spiff-rate-counter',
@@ -6,15 +7,13 @@ import { Component, Input, OnInit } from '@angular/core';
     styleUrls: ['./rate-counter.component.scss']
 })
 export class RateCounterComponent implements OnInit {
-    @Input() likes = 0;
-    @Input() dislikes = 0;
+    @Input() post: Post;
     @Input() liked = false;
     @Input() disliked = false;
-    @Input() onLike: () => void;
-    @Input() onDislike: () => void;
+    @Output() like = new EventEmitter<Post>();
+    @Output() dislike = new EventEmitter<Post>();
 
     ngOnInit(): void {
-        if (this.onLike === undefined || this.onLike === null) throw new Error('RateCounterComponent: onLike handler was not provided');
-        if (this.onDislike === undefined || this.onDislike === null) throw new Error('RateCounterComponent: onDislike handler was not provided');
+        if (this.post === undefined || this.post === null) throw new Error('RateCounterComponent: post was not provided');
     }
 }
