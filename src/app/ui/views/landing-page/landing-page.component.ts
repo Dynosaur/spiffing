@@ -1,3 +1,4 @@
+import { Title } from '@angular/platform-browser';
 import { Router } from '@angular/router';
 import { Post, User } from 'spiff/app/api/interface';
 import { PostService } from 'spiff/app/services/post.service';
@@ -19,9 +20,14 @@ export class LandingPageComponent implements OnInit {
     loadingPosts: boolean;
     postStatus: 'Ok' | 'None' | 'Error' = 'None';
 
-    constructor(private post: PostService, public dialog: DialogService, private router: Router, private account: UserAccountService) { }
+    constructor(private title: Title,
+                private post: PostService,
+                public dialog: DialogService,
+                private router: Router,
+                private account: UserAccountService) { }
 
     ngOnInit(): void {
+        this.title.setTitle('spiffing');
         this.fetchPosts();
     }
 
@@ -41,10 +47,6 @@ export class LandingPageComponent implements OnInit {
 
     toProfile(username: string): void {
         this.router.navigate(['user', username]);
-    }
-
-    openPost(id: string): void {
-        this.dialog.openViewPostDialog(id);
     }
 
     isPostLiked(postId: string): boolean {

@@ -1,3 +1,4 @@
+import { Title } from '@angular/platform-browser';
 import { Router } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
 import { FormControl } from '@angular/forms';
@@ -13,9 +14,10 @@ import { ChangeUsernameDialogComponent, DeleteAccountConfirmDialogComponent } fr
 export class SettingsComponent implements OnInit {
     usernameFormControl = new FormControl(this.user.username);
 
-    constructor(private user: UserAccountService, private dialog: MatDialog, private router: Router) { }
+    constructor(private user: UserAccountService, private dialog: MatDialog, private router: Router, private title: Title) { }
 
     ngOnInit(): void {
+        this.title.setTitle('user settings');
         if (!this.user.isSignedIn) this.router.navigate(['']);
     }
 

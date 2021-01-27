@@ -1,4 +1,5 @@
 import { Post } from 'spiff/app/api/interface/data-types';
+import { Title } from '@angular/platform-browser';
 import { PostService } from 'spiff/app/services/post.service';
 import { Subscription } from 'rxjs';
 import { DialogService } from 'spiff/app/services/dialog.service';
@@ -20,7 +21,8 @@ export class ProfileComponent implements OnInit, OnDestroy {
     postStream: Subscription;
     createdTimestamp: number;
 
-    constructor(private post: PostService,
+    constructor(private title: Title,
+                private post: PostService,
                 public dialog: DialogService,
                 private route: ActivatedRoute,
                 private api: ApiEndpointService) {
@@ -40,6 +42,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
                 this.screenname = userRequest.user.screenname;
                 this.createdTimestamp = userRequest.user.created;
                 this.refreshPosts();
+                this.title.setTitle(`user ${this.username}`);
             } else {
                 console.error('idk man');
             }
@@ -64,10 +67,6 @@ export class ProfileComponent implements OnInit, OnDestroy {
         const response = await this.post.getPostsByUserId(this.id);
         this.loadingPosts = false;
         return response;
-    }
-
-    clickPost(id: string): void {
-        this.dialog.openViewPostDialog(id);
     }
 
 }

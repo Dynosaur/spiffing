@@ -1,3 +1,4 @@
+import { Title } from '@angular/platform-browser';
 import { Post, User } from 'spiff/app/api/interface/data-types';
 import { ActivatedRoute } from '@angular/router';
 import { Component, OnInit } from '@angular/core';
@@ -26,12 +27,14 @@ export class PostComponent implements OnInit {
     constructor(private postSrvc: PostService,
                 private route: ActivatedRoute,
                 private account: UserAccountService,
-                private api: ApiEndpointService) { }
+                private api: ApiEndpointService,
+                private title: Title) { }
 
     ngOnInit(): void {
         this.route.params.subscribe(async params => {
             try {
                 this.post = await this.postSrvc.getPostById(params.id, true) as ViewPost;
+                this.title.setTitle(this.post.title);
                 this.date = new Date(this.post.date * 1000).toLocaleString();
                 if (this.account.ratedMap.status === 'Loading') {
                     this.account.accountEventStream.subscribe((event: UserAccountEvent) => {

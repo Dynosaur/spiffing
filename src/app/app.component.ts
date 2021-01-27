@@ -28,9 +28,6 @@ export class AppComponent implements OnInit {
                 case 'login':
                     this.dialog.openLoginDialog();
                     break;
-                case 'post':
-                    if (query.id) this.dialog.openViewPostDialog(query.id);
-                    break;
                 default:
                     throw new Error(`Unknown dialog query param provided: "${query.dialog}".`);
             }

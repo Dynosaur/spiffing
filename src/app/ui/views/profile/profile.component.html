@@ -16,7 +16,7 @@
 
             </ng-template>
             <div class="post-container">
-                <div class="post" *ngFor="let post of posts" (click)="clickPost(post._id)">
+                <div class="post" *ngFor="let post of posts" [routerLink]="'/post/' + post._id">
                     <h3 class="post-title">{{ post.title }}</h3>
                     <p class="post-content">{{ post.content }}</p>
                 </div>
