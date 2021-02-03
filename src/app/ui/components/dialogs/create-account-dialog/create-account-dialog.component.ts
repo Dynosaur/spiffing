@@ -1,8 +1,8 @@
 import { Router } from '@angular/router';
 import { Component } from '@angular/core';
+import { ApiService } from 'spiff/app/api/services/api.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatDialogRef } from '@angular/material/dialog';
-import { ApiEndpointService } from 'spiff/app/api/services/api-endpoint.service';
 import { UserAccountService } from 'spiff/app/services/user-account.service';
 import { AbstractControl, FormControl, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
 
@@ -21,7 +21,7 @@ export class CreateAccountDialogComponent {
     public retypePasswordControl = new FormControl('', [Validators.required, this.sameValueValidator(this.passwordControl)]);
 
     constructor(private dialog: MatDialogRef<CreateAccountDialogComponent>,
-                private api: ApiEndpointService,
+                private api: ApiService,
                 private snackbar: MatSnackBar,
                 private user: UserAccountService,
                 private router: Router) {
@@ -44,7 +44,7 @@ export class CreateAccountDialogComponent {
             this.creatingAccount = false;
             this.dialog.close();
             this.snackbar.open('Successfully created new account.', 'OK', { duration: 3000 });
-            this.router.navigate(['user', this.user.username]);
+            this.router.navigate(['user', this.user.user.username]);
         } else {
             this.creatingAccount = false;
             this.registerError = (registerRequest as any).error;

@@ -5,7 +5,7 @@ import { ActivationEnd, Router } from '@angular/router';
 import { FormControl, Validators } from '@angular/forms';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { AcceptedElements, TextFieldDialogComponent } from 'spiff/app/ui/components/text-field-dialog/text-field-dialog.component';
-import { CreateAccountDialogComponent, LoginDialogComponent } from 'spiff/app/ui/components/dialogs';
+import { ChangeUsernameDialogComponent, CreateAccountDialogComponent, DeleteAccountConfirmDialogComponent, LoginDialogComponent } from 'spiff/app/ui/components/dialogs';
 
 @Injectable({
     providedIn: 'root'
@@ -31,34 +31,41 @@ export class DialogService {
         return dialogRef;
     }
 
-    openGenericDialog(
-        title = 'Title',
-        description = 'Description.',
-        fields: AcceptedElements[] = [],
-        onSubmit?: (instance: TextFieldDialogComponent) => void
+    openGenericDialog(config: {
+        title?: string;
+        cancelText?: string;
+        submitText?: string;
+        description?: string;
+        fields?: AcceptedElements[];
+        onSubmit?: (instance: TextFieldDialogComponent) => void;
+    } = { title: null, cancelText: null, submitText: null, description: null, fields: [], onSubmit: null }
     ): MatDialogRef<TextFieldDialogComponent> {
         const dialog = this.dialog.open(TextFieldDialogComponent, { width: '80%' });
         const instance = dialog.componentInstance;
-        instance.description = description;
         instance.dialogRef = dialog;
-        instance.fields = fields;
-        instance.title = title;
-        instance.submit.subscribe(() => onSubmit(instance));
+        if (config.title) instance.title = config.title;
+        if (config.description) instance.description = config.description;
+        if (config.fields && config.fields.length) instance.fields = config.fields;
+        if (config.onSubmit) instance.submit.subscribe(() => config.onSubmit(instance));
         return dialog;
     }
 
     openCreatePostDialog(): void {
         const titleControl = new FormControl(null, [Validators.required]);
         const contentControl = new FormControl(null, [Validators.required]);
-        this.openGenericDialog('Create Post', '', [
-            { element: 'input',     name: 'title input',   label: 'Title',   formControl: titleControl },
-            { element: 'text-area', name: 'content input', label: 'Content', formControl: contentControl }
-        ], async ref => {
+        this.openGenericDialog({
+            title: 'Create Post',
+            fields: [
+                { element: 'input',     name: 'title input',   label: 'Title',   formControl: titleControl },
+                { element: 'text-area', name: 'content input', label: 'Content', formControl: contentControl }
+            ],
+            onSubmit: async ref => {
             ref.loading = true;
             const createPostResponse = await this.account.createPost(titleControl.value, contentControl.value);
             if (createPostResponse.ok === true) {
                 ref.closeDialog();
             } else throw new Error(createPostResponse.error);
+            }
         });
     }
 
@@ -68,6 +75,14 @@ export class DialogService {
 
     openLoginDialog(): void {
         if (!this.loginDialog) this.openDialog(LoginDialogComponent, 'login');
+    }
+
+    openChangeUsernameDialog(): void {
+        this.dialog.open(ChangeUsernameDialogComponent, { autoFocus: false });
+    }
+
+    openDeleteAccountDialog(): void {
+        this.dialog.open(DeleteAccountConfirmDialogComponent);
     }
 
 }

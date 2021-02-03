@@ -2,7 +2,7 @@ import { DialogService } from 'spiff/app/services/dialog.service';
 import { ActivatedRoute } from '@angular/router';
 import { SnackbarService } from 'spiff/app/services/snackbar.service';
 import { Component, OnInit } from '@angular/core';
-import { UserAccountService } from 'spiff/app/services/user-account.service';
+import { UserAccountEvent, UserAccountService } from 'spiff/app/services/user-account.service';
 import { LOCAL_STORAGE_ACCOUNT_KEY, LocalStorageService } from 'spiff/app/services/local-storage.service';
 
 @Component({
@@ -10,7 +10,7 @@ import { LOCAL_STORAGE_ACCOUNT_KEY, LocalStorageService } from 'spiff/app/servic
     templateUrl: './app.component.html',
     styleUrls: ['./app.component.scss']
 })
-export class AppComponent implements OnInit {
+export class RootComponent implements OnInit {
     username = '';
     signedIn = false;
     loadingUsername = false;
@@ -32,12 +32,18 @@ export class AppComponent implements OnInit {
                     throw new Error(`Unknown dialog query param provided: "${query.dialog}".`);
             }
         });
-        this.account.signInEventStream.subscribe((value: boolean) => {
-            this.signedIn = value;
-            if (this.signedIn) {
-                this.username = this.account.username;
-            } else {
-                this.username = null;
+        this.account.events.subscribe((event: UserAccountEvent) => {
+            switch (event) {
+                case 'LOG_IN':
+                    this.signedIn = true;
+                    this.username = this.account.user.username;
+                    break;
+                case 'LOG_OUT':
+                    this.signedIn = false;
+                    this.username = null;
+                    break;
+                case 'PASSWORD_CHANGE':
+                    break;
             }
         });
 

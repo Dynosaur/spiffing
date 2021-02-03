@@ -1,10 +1,10 @@
 import { Post } from 'spiff/app/api/interface/data-types';
 import { Title } from '@angular/platform-browser';
+import { ApiService } from 'spiff/app/api/services/api.service';
 import { PostService } from 'spiff/app/services/post.service';
 import { Subscription } from 'rxjs';
 import { DialogService } from 'spiff/app/services/dialog.service';
 import { ActivatedRoute } from '@angular/router';
-import { ApiEndpointService } from 'spiff/app/api/services/api-endpoint.service';
 import { Component, OnInit, OnDestroy } from '@angular/core';
 
 @Component({
@@ -25,8 +25,8 @@ export class ProfileComponent implements OnInit, OnDestroy {
                 private post: PostService,
                 public dialog: DialogService,
                 private route: ActivatedRoute,
-                private api: ApiEndpointService) {
-        this.postStream = post.postEventStream.subscribe(() => this.refreshPosts());
+                private api: ApiService) {
+        this.postStream = post.postEvents.subscribe(() => this.refreshPosts());
     }
 
     ngOnDestroy(): void {
@@ -36,16 +36,15 @@ export class ProfileComponent implements OnInit, OnDestroy {
     ngOnInit(): void {
         this.route.params.subscribe(async params => {
             this.username = params.username;
-            const userRequest = await this.api.getUser(this.username);
-            if (userRequest.ok) {
-                this.id = userRequest.user._id;
-                this.screenname = userRequest.user.screenname;
-                this.createdTimestamp = userRequest.user.created;
+            const userRequest = await this.api.getUsers({ username: this.username });
+            if (userRequest.ok === true) {
+                const user = userRequest.users[0];
+                this.id = user._id;
+                this.screenname = user.screenname;
+                this.createdTimestamp = user.created;
                 this.refreshPosts();
                 this.title.setTitle(`user ${this.username}`);
-            } else {
-                console.error('idk man');
-            }
+            } else throw new Error(userRequest.error);
         });
     }
 
