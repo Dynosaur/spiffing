@@ -1,37 +1,67 @@
 import { Title } from '@angular/platform-browser';
 import { Router } from '@angular/router';
-import { MatDialog } from '@angular/material/dialog';
 import { FormControl } from '@angular/forms';
-import { Component, OnInit } from '@angular/core';
-import { UserAccountService } from 'spiff/app/services/user-account.service';
-import { ChangeUsernameDialogComponent, DeleteAccountConfirmDialogComponent } from 'spiff/app/ui/components/dialogs';
+import { Subscription } from 'rxjs';
+import { DialogService } from 'spiff/app/services/dialog.service';
+import { sameValueValidator } from 'spiff/app/forms/validators';
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { UserAccountEvent, UserAccountService } from 'spiff/app/services/user-account.service';
 
 @Component({
     selector: 'spiff-settings-view',
     templateUrl: './settings.component.html',
     styleUrls: ['./settings.component.scss']
 })
-export class SettingsComponent implements OnInit {
-    usernameFormControl = new FormControl(this.user.username);
+export class SettingsComponent implements OnInit, OnDestroy {
+    accountEventListener: Subscription;
 
-    constructor(private user: UserAccountService, private dialog: MatDialog, private router: Router, private title: Title) { }
+    constructor(private title: Title,
+                private router: Router,
+                private dialog: DialogService,
+                private account: UserAccountService) { }
 
     ngOnInit(): void {
+        if (this.account.user === null) this.router.navigate(['']);
         this.title.setTitle('user settings');
-        if (!this.user.isSignedIn) this.router.navigate(['']);
+        this.accountEventListener = this.account.events.subscribe(this.onUserAccountEvent.bind(this));
     }
 
-    isUsernameInputClean(): boolean {
-        console.log(this.usernameFormControl.value);
-        if (this.usernameFormControl.value === null) return true;
-        return this.usernameFormControl.value === this.user.username;
+    ngOnDestroy(): void {
+        this.accountEventListener.unsubscribe();
+    }
+
+    onUserAccountEvent(event: UserAccountEvent): void {
+        if (event === 'LOG_OUT') this.router.navigate(['']);
+    }
+
+    changePassword(): void {
+        const passwordControl = new FormControl();
+        const retypeControl = new FormControl(null, sameValueValidator(passwordControl));
+        this.dialog.openGenericDialog({
+            title: 'Change Password',
+            submitText: 'Change',
+            description: 'Please enter what you would like your new password to be.',
+            fields: [
+                { element: 'input', name: 'password', label: 'Password',        type: 'password', formControl: passwordControl },
+                { element: 'input', name: 'retype',   label: 'Retype Password', type: 'password', formControl: retypeControl }
+            ],
+            onSubmit: async dialog => {
+                dialog.loading = true;
+                const updateRequest = await this.account.patch({ password: passwordControl.value });
+                dialog.loading = false;
+                if (updateRequest.ok === true) {
+                    this.account.passwordChanged(passwordControl.value);
+                    dialog.closeDialog();
+                }
+            }
+        });
     }
 
     changeUsername(): void {
-        this.dialog.open(ChangeUsernameDialogComponent, { autoFocus: false });
+        this.dialog.openChangeUsernameDialog();
     }
 
     deleteAccount(): void {
-        this.dialog.open(DeleteAccountConfirmDialogComponent);
+        this.dialog.openDeleteAccountDialog();
     }
 }
