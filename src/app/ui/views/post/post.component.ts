@@ -2,9 +2,8 @@ import { Title } from '@angular/platform-browser';
 import { Post, User } from 'spiff/app/api/interface/data-types';
 import { ActivatedRoute } from '@angular/router';
 import { Component, OnInit } from '@angular/core';
-import { ApiEndpointService } from 'spiff/app/api/services/api-endpoint.service';
+import { UserAccountService } from 'spiff/app/services/user-account.service';
 import { GetPostError, PostService } from 'spiff/app/services/post.service';
-import { UserAccountEvent, UserAccountService } from 'spiff/app/services/user-account.service';
 
 interface ViewPost extends Post {
     author: User;
@@ -24,11 +23,21 @@ export class PostComponent implements OnInit {
     canDisplay = false;
     errorMessage: string;
 
-    constructor(private postSrvc: PostService,
+    constructor(private title: Title,
                 private route: ActivatedRoute,
-                private account: UserAccountService,
-                private api: ApiEndpointService,
-                private title: Title) { }
+                private postSrvc: PostService,
+                private account: UserAccountService) { }
+
+    updateRatings(): void {
+        if (this.account.ratedPosts.has(this.post._id)) {
+            const rating = this.account.ratedPosts.get(this.post._id);
+            this.liked = rating;
+            this.disliked = !rating;
+        } else {
+            this.liked = false;
+            this.disliked = false;
+        }
+    }
 
     ngOnInit(): void {
         this.route.params.subscribe(async params => {
@@ -36,29 +45,11 @@ export class PostComponent implements OnInit {
                 this.post = await this.postSrvc.getPostById(params.id, true) as ViewPost;
                 this.title.setTitle(this.post.title);
                 this.date = new Date(this.post.date * 1000).toLocaleString();
-                if (this.account.ratedMap.status === 'Loading') {
-                    this.account.accountEventStream.subscribe((event: UserAccountEvent) => {
-                        if (event === 'ratedMapReady') {
-                            if (this.account.ratedMap.map.has(this.post._id)) {
-                                const rating = this.account.ratedMap.map.get(this.post._id);
-                                this.liked = rating;
-                                this.disliked = !rating;
-                            } else {
-                                this.liked = false;
-                                this.disliked = false;
-                            }
-                        }
+                if (!this.account.state) {
+                    this.account.events.subscribe((event: boolean) => {
+                        if (event === true) this.updateRatings();
                     });
-                } else {
-                    if (this.account.ratedMap.map.has(this.post._id)) {
-                        const rating = this.account.ratedMap.map.get(this.post._id);
-                        this.liked = rating;
-                        this.disliked = !rating;
-                    } else {
-                        this.liked = false;
-                        this.disliked = false;
-                    }
-                }
+                } else this.updateRatings();
             } catch (error) {
                 if (error instanceof GetPostError) {
                     this.errorMessage = error.error;
@@ -71,16 +62,16 @@ export class PostComponent implements OnInit {
 
     async likePost(): Promise<void> {
         if (this.liked) {
-            const rateRequest = await this.api.ratePost(this.account.username, this.account.password, this.post._id, 0);
+            const rateRequest = await this.account.ratePost(this.post._id, 0);
             if (rateRequest.ok === true) {
-                this.account.ratedMap.map.delete(this.post._id);
+                this.account.ratedPosts.delete(this.post._id);
                 this.liked = false;
                 this.post.likes--;
             } else throw new Error('Error while liking post in Post View: ' + rateRequest.error);
         } else {
-            const rateRequest = await this.api.ratePost(this.account.username, this.account.password, this.post._id, 1);
+            const rateRequest = await this.account.ratePost(this.post._id, 1);
             if (rateRequest.ok === true) {
-                this.account.ratedMap.map.set(this.post._id, true);
+                this.account.ratedPosts.set(this.post._id, true);
                 this.liked = true;
                 this.post.likes++;
                 if (this.disliked) {
@@ -93,16 +84,16 @@ export class PostComponent implements OnInit {
 
     async dislikePost(): Promise<void> {
         if (this.disliked) {
-            const rateRequest = await this.api.ratePost(this.account.username, this.account.password, this.post._id, 0);
+            const rateRequest = await this.account.ratePost(this.post._id, 0);
             if (rateRequest.ok === true) {
-                this.account.ratedMap.map.delete(this.post._id);
+                this.account.ratedPosts.delete(this.post._id);
                 this.disliked = false;
                 this.post.dislikes--;
             } else throw new Error('Error while liking post in Post View: ' + rateRequest.error);
         } else {
-            const rateRequest = await this.api.ratePost(this.account.username, this.account.password, this.post._id, -1);
+            const rateRequest = await this.account.ratePost(this.post._id, -1);
             if (rateRequest.ok === true) {
-                this.account.ratedMap.map.set(this.post._id, false);
+                this.account.ratedPosts.set(this.post._id, false);
                 this.disliked = true;
                 this.post.dislikes++;
                 if (this.liked) {
