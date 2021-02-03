@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 
 @Component({
     selector: 'spiff-button',
@@ -6,10 +6,15 @@ import { Component, Input } from '@angular/core';
     styleUrls: ['./button.component.scss']
 })
 export class ButtonComponent {
-
+    @Input() emitValue: any;
+    @Input() loading = false;
     @Input() disabled: boolean;
-    @Input() showProgress: boolean;
+    @Output() action = new EventEmitter();
     @Input() theme: 'primary' | 'warning' = 'primary';
-    @Input() action: () => void = () => { };
+
+    onClick(): void {
+        if (this.disabled) return;
+        this.action.emit(this.emitValue);
+    }
 
 }

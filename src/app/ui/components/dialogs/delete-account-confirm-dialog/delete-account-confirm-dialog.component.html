@@ -4,5 +4,5 @@
 </div>
 <div mat-dialog-actions>
     <button mat-button color="primary">Cancel</button>
-    <spiff-button [theme]="'warn'" [showProgress]="accountDeletionInProgress" (click)="deleteAccount()">Delete</spiff-button>
+    <spiff-button [theme]="'warn'" [loading]="accountDeletionInProgress" (click)="deleteAccount()">Delete</spiff-button>
 </div>

@@ -20,7 +20,7 @@
     <spiff-button
             (click)="submitSignIn()"
             [disabled]="!(usernameForm.valid && passwordForm.valid)"
-            [showProgress]="loginInProgress"
+            [loading]="loginInProgress"
             class="sign-in-button">
         Sign In
     </spiff-button>

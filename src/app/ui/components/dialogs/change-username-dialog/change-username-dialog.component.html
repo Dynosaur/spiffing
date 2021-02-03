@@ -1,6 +1,6 @@
 <h1 mat-dialog-title>Change Username</h1>
 
-<ng-container *ngIf="signedIn; else spinner">
+<ng-container *ngIf="loggedIn; else spinner">
     <div mat-dialog-content>
         <p>Your username will be changed. Your new username must be unique.</p>
         <spiff-form-field
@@ -10,7 +10,7 @@
     </div>
     <div mat-dialog-actions class="">
         <button mat-button color="primary">Cancel</button>
-        <spiff-button [disabled]="!canChange()" [action]="changeUsername.bind(this)">Change</spiff-button>
+        <spiff-button [disabled]="!canChange()" (action)="changeUsername()">Change</spiff-button>
     </div>
 </ng-container>
 

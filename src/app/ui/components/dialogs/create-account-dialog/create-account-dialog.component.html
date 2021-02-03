@@ -30,7 +30,7 @@
     <spiff-button
             class="create-account-button"
             [disabled]="!usernameControl.valid || !passwordControl.valid || !retypePasswordControl.valid"
-            [showProgress]="creatingAccount"
+            [loading]="creatingAccount"
             (click)="createAccount()">
         Create Account
     </spiff-button>
