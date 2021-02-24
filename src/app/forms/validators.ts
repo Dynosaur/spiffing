@@ -6,3 +6,14 @@ export function sameValueValidator(mustMatch: AbstractControl): ValidatorFn {
         return sameValue ? null : { sameValue: { value: control.value }};
     };
 }
+
+export function valueMustNotBe(value: string): ValidatorFn {
+    return (control: AbstractControl): ValidationErrors => {
+        return control.value !== value ? null : {
+            mustNotEqual: {
+                currentValue: control.value,
+                mustNotEqual: value
+            }
+        };
+    };
+}

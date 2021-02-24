@@ -1,5 +1,8 @@
 /* To learn more about this file see: https://angular.io/config/tsconfig. */
 {
+  "angularCompilerOptions": {
+    "strictTemplates": true
+  },
   "extends": "./tsconfig.base.json",
   "compilerOptions": {
     "outDir": "./out-tsc/spec",

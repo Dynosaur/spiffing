@@ -2,6 +2,7 @@ import { Title } from '@angular/platform-browser';
 import { Router } from '@angular/router';
 import { FormControl } from '@angular/forms';
 import { Subscription } from 'rxjs';
+import changeScreenname from './change-screenname';
 import { DialogService } from 'spiff/app/services/dialog.service';
 import { sameValueValidator } from 'spiff/app/forms/validators';
 import { Component, OnDestroy, OnInit } from '@angular/core';
@@ -55,6 +56,10 @@ export class SettingsComponent implements OnInit, OnDestroy {
                 }
             }
         });
+    }
+
+    openChangeScreenname(): void {
+        changeScreenname(this.dialog, this.account);
     }
 
     changeUsername(): void {
