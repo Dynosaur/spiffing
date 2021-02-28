@@ -25,6 +25,10 @@ export interface Comment {
     dislikes: number;
     likes: number;
     replies: string[];
+    parent: {
+        _id: string;
+        contentType: 'post' | 'comment';
+    }
 }
 
 export interface RatedPost {
