@@ -1,7 +1,8 @@
-import { environment as env } from '../src/environments/environment';
-import { get as httpGet } from 'http';
 import { existsSync, mkdirSync,writeFile } from 'fs';
-import * as chalk from 'chalk';
+import * as chalk                          from 'chalk';
+import { get as httpGet }                  from 'http';
+import { resolve }                         from 'path';
+import { environment as env } from '../src/environments/environment';
 
 const apiUrl = env.apiHost;
 
@@ -17,18 +18,18 @@ const get = (path: string): Promise<string> => {
     });
 };
 
-const update = (path: string, fileName: string): void => {
-    get(path).then(fileData => {
-        if (fileData.includes(`<pre>Cannot GET ${path}</pre>`)) {
-            console.log(chalk.redBright(`Could not get data from ${path}.`));
+const update = (apiPath: string, localFileName: string): void => {
+    get(apiPath).then(fileData => {
+        if (fileData.includes(`<pre>Cannot GET ${apiPath}</pre>`)) {
+            console.log(chalk.redBright(`Could not get data from ${apiPath}.`));
             return;
         }
 
-        writeFile(fileName, fileData, err => {
+        writeFile(localFileName, fileData, err => {
             if (err) {
                 console.log(err);
             } else {
-                console.log(chalk.greenBright(`Successfully updated ${fileName}`));
+                console.log(`Successfully updated ${resolve(process.cwd(), localFileName)}`);
             }
         });
     }).catch((err: any) => {
@@ -48,13 +49,13 @@ function ensureDirectoriesExist(): void {
             mkdirSync(path);
         }
     }
-    ensureDirectoryExists('./src/app/api/interface');
-    ensureDirectoryExists('./src/app/api/interface/responses');
+    ensureDirectoryExists('../src/app/api/interface');
+    ensureDirectoryExists('../src/app/api/interface/responses');
 }
 
 ensureDirectoriesExist();
-update('/dev/data-types', 'src/app/api/interface/data-types.ts');
-update('/dev/response', 'src/app/api/interface/response.ts');
-update('/dev/responses/api-responses', 'src/app/api/interface/responses/api-responses.ts');
-update('/dev/responses/auth-endpoints', 'src/app/api/interface/responses/auth-responses.ts');
-update('/dev/responses/error-responses', 'src/app/api/interface/responses/error-responses.ts');
+update('/api/dev/data-types', '../src/app/api/interface/data-types.ts');
+update('/api/dev/response', '../src/app/api/interface/response.ts');
+update('/api/dev/responses/api-responses', '../src/app/api/interface/responses/api-responses.ts');
+update('/api/dev/responses/auth-endpoints', '../src/app/api/interface/responses/auth-responses.ts');
+update('/api/dev/responses/error-responses', '../src/app/api/interface/responses/error-responses.ts');
