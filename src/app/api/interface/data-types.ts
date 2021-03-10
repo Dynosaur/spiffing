@@ -20,7 +20,7 @@ export interface User {
 
 export interface Comment {
     _id: string;
-    author: string;
+    author: string | User;
     content: string;
     dislikes: number;
     likes: number;
@@ -31,13 +31,15 @@ export interface Comment {
     }
 }
 
-export interface RatedPost {
-    _id: string;
-    rating: -1 | 1;
-}
-
-export interface RatedPosts {
+export interface Rates {
     _id: string;
     owner: string;
-    posts: RatedPost[];
+    comments: {
+        liked: string[];
+        disliked: string[];
+    }
+    posts: {
+        liked: string[];
+        disliked: string[];
+    }
 }
