@@ -3,7 +3,7 @@
   "angularCompilerOptions": {
     "strictTemplates": true
   },
-  "extends": "./tsconfig.base.json",
+  "extends": "./tsconfig.json",
   "compilerOptions": {
     "outDir": "./out-tsc/spec",
     "types": [
