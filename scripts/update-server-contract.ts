@@ -1,5 +1,5 @@
 import { existsSync, mkdirSync,writeFile } from 'fs';
-import * as chalk                          from 'chalk';
+import chalk                               from 'chalk';
 import { get as httpGet }                  from 'http';
 import { resolve }                         from 'path';
 import { environment as env } from '../src/environments/environment';
