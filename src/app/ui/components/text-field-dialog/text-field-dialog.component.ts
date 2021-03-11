@@ -69,4 +69,8 @@ export class TextFieldDialogComponent implements OnInit {
     closeDialog(): void {
         this.dialogRef.close();
     }
+
+    asInput(input: AcceptedElements): Input {
+        return input as Input;
+    }
 }

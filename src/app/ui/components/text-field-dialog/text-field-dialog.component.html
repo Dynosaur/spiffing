@@ -5,7 +5,7 @@
         <ng-container [ngSwitch]="field.element">
             <mat-form-field *ngSwitchCase="'input'">
                 <mat-label>{{ field.label }}</mat-label>
-                <input matInput [type]="field.type" [formControl]="field.formControl">
+                <input matInput [type]="asInput(field).type" [formControl]="field.formControl">
                 <mat-error *ngIf="field.formControl.errors">
                     <span>{{ getError(field) }}</span>
                 </mat-error>
