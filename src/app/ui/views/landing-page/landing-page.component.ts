@@ -1,9 +1,10 @@
-import { Title } from '@angular/platform-browser';
-import { Post, User } from 'spiff/app/api/interface';
-import { PostService } from 'spiff/app/services/post.service';
-import { DialogService } from 'spiff/app/services/dialog.service';
 import { Component, OnInit } from '@angular/core';
-import { UserAccountService } from 'spiff/app/services/user-account.service';
+import { Title }             from '@angular/platform-browser';
+import { Post, User }         from 'api/interface';
+import { Comment }            from 'interface/data-types';
+import { DialogService }      from 'services/dialog.service';
+import { PostService }        from 'services/post.service';
+import { UserAccountService } from 'services/user-account.service';
 
 interface PostWithAuthorUser extends Post {
     author: User;
@@ -57,7 +58,8 @@ export class LandingPageComponent implements OnInit {
         return new Date(post.date * 1000).toLocaleString();
     }
 
-    async likePost(post: Post): Promise<void> {
+    async likePost(post: Post | Comment): Promise<void> {
+        post = post as Post;
         if (post === undefined || post === null) throw new Error('LandingPageComponent: provided post to like was ' + post);
         if (this.account.ratedPosts.get(post._id) === true) {
             const rateRequest = await this.account.ratePost(post._id, 0);
@@ -75,7 +77,8 @@ export class LandingPageComponent implements OnInit {
         }
     }
 
-    async dislikePost(post: Post): Promise<void> {
+    async dislikePost(post: Post | Comment): Promise<void> {
+        post = post as Post;
         if (post === undefined || post === null) throw new Error('LandingPageComponent: provided post to like was ' + post);
         if (this.account.ratedPosts.get(post._id) === false) {
             const rateRequest = await this.account.ratePost(post._id, 0);
