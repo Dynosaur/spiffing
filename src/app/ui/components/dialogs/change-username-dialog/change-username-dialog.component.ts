@@ -15,7 +15,7 @@ export class ChangeUsernameDialogComponent implements OnInit {
     constructor(private account: UserAccountService, private dialog: MatDialog) {}
 
     ngOnInit(): void {
-        this.loggedIn = this.account.state;
+        this.loggedIn = !!this.account.user;
         if (!this.loggedIn) this.account.events.subscribe((event: boolean) => this.loggedIn = event);
     }
 
