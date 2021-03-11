@@ -10,7 +10,7 @@ export class ButtonComponent {
     @Input() loading = false;
     @Input() disabled: boolean;
     @Output() action = new EventEmitter();
-    @Input() theme: 'primary' | 'warning' = 'primary';
+    @Input() theme: 'primary' | 'warn' = 'primary';
 
     onClick(): void {
         if (this.disabled) return;
