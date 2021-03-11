@@ -1,11 +1,18 @@
-import { Title } from '@angular/platform-browser';
-import { Post, User } from 'spiff/app/api/interface/data-types';
-import { ActivatedRoute } from '@angular/router';
 import { Component, OnInit } from '@angular/core';
-import { UserAccountService } from 'spiff/app/services/user-account.service';
-import { GetPostError, PostService } from 'spiff/app/services/post.service';
+import { FormControl }       from '@angular/forms';
+import { Title }             from '@angular/platform-browser';
+import { ActivatedRoute }    from '@angular/router';
+import { ApiService }                from 'api/services/api.service';
+import { Comment, Post, User }       from 'interface/data-types';
+import { GetPostError, PostService } from 'services/post.service';
+import { SnackbarService }           from 'services/snackbar.service';
+import { UserAccountService }        from 'services/user-account.service';
 
-interface ViewPost extends Post {
+interface PostUserIncluded extends Post {
+    author: User;
+}
+
+interface CommentUserIncluded extends Comment {
     author: User;
 }
 
@@ -15,67 +22,104 @@ interface ViewPost extends Post {
     styleUrls: ['./post.component.scss']
 })
 export class PostComponent implements OnInit {
-    post: ViewPost;
-    date: string;
-    liked: boolean;
-    disliked: boolean;
-    loading = true;
+    readonly services: {
+        readonly account: UserAccountService;
+        readonly api: ApiService;
+        readonly post: PostService;
+        readonly route: ActivatedRoute;
+        readonly snackbar: SnackbarService;
+        readonly title: Title;
+    }
+
+    readonly state = {
+        liked: false,
+        disliked: false,
+        postLoading: true,
+        commentsLoading: true,
+        commentsError: false
+    };
+    post: PostUserIncluded;
+
     canDisplay = false;
     errorMessage: string;
+    commentControl = new FormControl();
+    postingComment = false;
+    comments: CommentUserIncluded[];
+    commentsAmount: number;
 
-    constructor(private title: Title,
-                private route: ActivatedRoute,
-                private postSrvc: PostService,
-                private account: UserAccountService) { }
+    constructor(title: Title, route: ActivatedRoute, post: PostService, account: UserAccountService,
+    snackbar: SnackbarService, api: ApiService) {
+        this.services = { account, api, post, route, snackbar, title };
+    }
 
     updateRatings(): void {
-        if (this.account.ratedPosts.has(this.post._id)) {
-            const rating = this.account.ratedPosts.get(this.post._id);
-            this.liked = rating;
-            this.disliked = !rating;
+        if (this.services.account.ratedPosts.has(this.post._id)) {
+            const rating = this.services.account.ratedPosts.get(this.post._id);
+            this.state.liked = rating;
+            this.state.disliked = !rating;
         } else {
-            this.liked = false;
-            this.disliked = false;
+            this.state.liked = false;
+            this.state.disliked = false;
         }
     }
 
     ngOnInit(): void {
-        this.route.params.subscribe(async params => {
+        this.services.route.params.subscribe(async params => {
             try {
-                this.post = await this.postSrvc.getPostById(params.id, true) as ViewPost;
-                this.title.setTitle(this.post.title);
-                this.date = new Date(this.post.date * 1000).toLocaleString();
-                if (!this.account.state) {
-                    this.account.events.subscribe((event: boolean) => {
+                this.post = await this.services.post.getPostById(params.id, true) as PostUserIncluded;
+                this.services.title.setTitle(this.post.title);
+                if (!this.services.account.user) {
+                    this.services.account.events.subscribe((event: boolean) => {
                         if (event === true) this.updateRatings();
                     });
                 } else this.updateRatings();
+                if (this.post.comments.length) {
+                    const commentsRequest = await this.services.api.getComments(
+                        { parent: { type: 'post', id: this.post._id } }, true
+                    );
+                    if (commentsRequest.ok) {
+                        this.comments = commentsRequest.comments as CommentUserIncluded[];
+                        this.commentsAmount = this.comments.length;
+                    } else {
+                        this.state.commentsError = true;
+                        this.services.snackbar.push('An error occurred while retrieving the comments.');
+                        console.error(commentsRequest);
+                    }
+                    this.state.commentsLoading = false;
+                } else {
+                    this.comments = [];
+                    this.state.commentsLoading = false;
+                }
             } catch (error) {
                 if (error instanceof GetPostError) {
                     this.errorMessage = error.error;
                 } else throw error;
             }
-            this.loading = false;
+            this.state.postLoading = false;
             this.canDisplay = !!this.post;
         });
     }
 
     async likePost(): Promise<void> {
-        if (this.liked) {
-            const rateRequest = await this.account.ratePost(this.post._id, 0);
+        if (!this.services.account.user) {
+            this.services.snackbar.push('Sorry, you must be logged in to do that.', 'OK', 5000);
+            return;
+        }
+        if (this.state.liked) {
+            const rateRequest = await this.services.account.ratePost(this.post._id, 0);
             if (rateRequest.ok === true) {
-                this.account.ratedPosts.delete(this.post._id);
-                this.liked = false;
+                this.services.account.ratedPosts.delete(this.post._id);
+                this.state.liked = false;
                 this.post.likes--;
             } else throw new Error('Error while liking post in Post View: ' + rateRequest.error);
         } else {
-            const rateRequest = await this.account.ratePost(this.post._id, 1);
+            const rateRequest = await this.services.account.ratePost(this.post._id, 1);
             if (rateRequest.ok === true) {
-                this.account.ratedPosts.set(this.post._id, true);
-                this.liked = true;
+                this.services.account.ratedPosts.set(this.post._id, true);
+                this.state.liked = true;
                 this.post.likes++;
-                if (this.disliked) {
-                    this.disliked = false;
+                if (this.state.disliked) {
+                    this.state.disliked = false;
                     this.post.dislikes--;
                 }
             } else throw new Error('Error while liking post in Post View: ' + rateRequest.error);
@@ -83,25 +127,131 @@ export class PostComponent implements OnInit {
     }
 
     async dislikePost(): Promise<void> {
-        if (this.disliked) {
-            const rateRequest = await this.account.ratePost(this.post._id, 0);
+        if (!this.services.account.user) {
+            this.services.snackbar.push('Sorry, you must be logged in to do that.', 'OK', 5000);
+            return;
+        }
+        if (this.state.disliked) {
+            const rateRequest = await this.services.account.ratePost(this.post._id, 0);
             if (rateRequest.ok === true) {
-                this.account.ratedPosts.delete(this.post._id);
-                this.disliked = false;
+                this.services.account.ratedPosts.delete(this.post._id);
+                this.state.disliked = false;
                 this.post.dislikes--;
             } else throw new Error('Error while liking post in Post View: ' + rateRequest.error);
         } else {
-            const rateRequest = await this.account.ratePost(this.post._id, -1);
+            const rateRequest = await this.services.account.ratePost(this.post._id, -1);
             if (rateRequest.ok === true) {
-                this.account.ratedPosts.set(this.post._id, false);
-                this.disliked = true;
+                this.services.account.ratedPosts.set(this.post._id, false);
+                this.state.disliked = true;
                 this.post.dislikes++;
-                if (this.liked) {
-                    this.liked = false;
+                if (this.state.liked) {
+                    this.state.liked = false;
                     this.post.likes--;
                 }
             } else throw new Error('Error while liking post in Post View: ' + rateRequest.error);
         }
     }
 
+    async likeComment(comment: CommentUserIncluded): Promise<void> {
+        if (!this.services.account.user) {
+            this.services.snackbar.push('Sorry, you must be logged in to do that.', 'OK', 5000);
+            return;
+        }
+        const isUnrated = !this.services.account.ratedComments.has(comment._id);
+        const isDisliked = this.services.account.ratedComments.get(comment._id) === false;
+        if (isUnrated || isDisliked) {
+            const likeRes = await this.services.account.rateComment(comment._id, 1);
+            if (likeRes.ok) {
+                if (this.services.account.ratedComments.get(comment._id) === false)
+                    comment.dislikes--;
+                this.services.account.ratedComments.set(comment._id, true);
+                comment.likes++;
+            } else {
+                console.error(`Received an error while liking comment "${comment._id}"\n` +
+                `${JSON.stringify(likeRes)}`);
+                this.services.snackbar.push('An error occurred while liking that comment.');
+            }
+        } else {
+            const unrateRes = await this.services.account.rateComment(comment._id, 0);
+            if (unrateRes.ok) {
+                this.services.account.ratedComments.delete(comment._id);
+                comment.likes--;
+            } else {
+                console.error(`Received an error while unliking comment "${comment._id}"\n` +
+                `${JSON.stringify(unrateRes)}`);
+                this.services.snackbar.push('An error occurred while unrating that comment.');
+            }
+        }
+    }
+
+    async dislikeComment(comment: CommentUserIncluded): Promise<void> {
+        if (!this.services.account.user) {
+            this.services.snackbar.push('Sorry, you must be logged in to do that.', 'OK', 5000);
+            return;
+        }
+        const isUnrated = !this.services.account.ratedComments.has(comment._id);
+        const isLiked = this.services.account.ratedComments.get(comment._id) === true;
+        if (isUnrated || isLiked) {
+            const dislikeRes = await this.services.account.rateComment(comment._id, -1);
+            if (dislikeRes.ok) {
+                if (this.services.account.ratedComments.get(comment._id) === true)
+                    comment.likes--;
+                this.services.account.ratedComments.set(comment._id, false);
+                comment.dislikes++;
+            } else {
+                console.error(`Received an error while disliking comment "${comment._id}"\n` +
+                `${JSON.stringify(dislikeRes)}`);
+                this.services.snackbar.push('An error occurred while disliking that comment.');
+            }
+        } else {
+            const unrateRes = await this.services.account.rateComment(comment._id, 0);
+            if (unrateRes.ok) {
+                this.services.account.ratedComments.delete(comment._id);
+                comment.dislikes--;
+            } else {
+                console.error(`Received an error while unrating comment "${comment._id}"\n` +
+                    JSON.stringify(unrateRes));
+                this.services.snackbar.push('An error occurred while unrating that comment.');
+            }
+        }
+    }
+
+    isCommentLiked(id: string): boolean {
+        if (!this.services.account.user) return false;
+        if (!this.services.account.ratedComments.has(id)) return false;
+        return this.services.account.ratedComments.get(id);
+    }
+
+    isCommentDisliked(id: string): boolean {
+        if (!this.services.account.user) return false;
+        if (!this.services.account.ratedComments.has(id)) return false;
+        return !this.services.account.ratedComments.get(id);
+    }
+
+    linkToProfile(username: string): string {
+        return `/user/${username}`;
+    }
+
+    async postComment(): Promise<void> {
+        this.postingComment = true;
+        const response = await this.services.account.postComment('post', this.post._id, this.commentControl.value);
+        if (response.ok) {
+            this.commentControl.reset();
+            const commentCopy = { ...response.comment };
+            commentCopy.author = this.services.account.user;
+            this.commentsAmount = this.comments.push(commentCopy as CommentUserIncluded);
+        } else {
+            console.error('Received an error while posting comment.\n' + JSON.stringify(response));
+            this.services.snackbar.push('Something went wrong while posting your comment.', 'OK', 5000);
+        }
+        this.postingComment = false;
+    }
+
+    numToDate(date: number): string {
+        return new Date(date * 1000).toUTCString()
+    }
+
+    isAuthor(comment: CommentUserIncluded): boolean {
+        return this.services.account?.user._id === comment.author._id;
+    }
 }
