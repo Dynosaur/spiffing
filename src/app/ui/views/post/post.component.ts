@@ -73,13 +73,13 @@ export class PostComponent implements OnInit {
                         if (event === true) this.updateRatings();
                     });
                 } else this.updateRatings();
+                this.commentsAmount = this.post.comments.length;
                 if (this.post.comments.length) {
                     const commentsRequest = await this.services.api.getComments(
                         { parent: { type: 'post', id: this.post._id } }, true
                     );
                     if (commentsRequest.ok) {
                         this.comments = commentsRequest.comments as CommentUserIncluded[];
-                        this.commentsAmount = this.comments.length;
                     } else {
                         this.state.commentsError = true;
                         this.services.snackbar.push('An error occurred while retrieving the comments.');
@@ -252,6 +252,6 @@ export class PostComponent implements OnInit {
     }
 
     isAuthor(comment: CommentUserIncluded): boolean {
-        return this.services.account?.user._id === comment.author._id;
+        return this.services.account.user?._id === comment.author._id;
     }
 }
