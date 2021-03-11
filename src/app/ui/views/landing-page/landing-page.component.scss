@@ -4,9 +4,13 @@
     padding: 10px 15px;
     background-color: white;
 
-    * { margin: 0; }
+    p {
+        margin: 0;
+    }
 
-    .landing-page-spinner { margin: auto; }
+    .landing-page-spinner {
+        margin: auto;
+    }
 
     .landing-page-post {
         display: flex;
@@ -27,11 +31,16 @@
             }
         }
 
+        .comments-label {
+            font-size: 13px;
+        }
+
         .post-title {
+            outline: none;
+            cursor: pointer;
+            font-weight: 500;
             width: fit-content;
             height: fit-content;
-            font-weight: 500;
-            cursor: pointer;
         }
     }
 }
