@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { environment as env } from 'spiff/environments/environment';
+import { environment } from 'spiff/environments/environment';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 
 interface Headers {
@@ -8,9 +8,9 @@ interface Headers {
 
 @Injectable({ providedIn: 'root' })
 export class ApiHttpService {
-    private apiUrl = env.apiHost;
+    private apiUrl = environment.apiHost;
 
-    constructor(private http: HttpClient) { }
+    constructor(private http: HttpClient) {}
 
     private createUrl(path: string[], query: object): string {
         Object.keys(query).forEach(key => { if (!query[key]) delete query[key]; });
@@ -35,7 +35,7 @@ export class ApiHttpService {
         headers: Headers
     ): Promise<T> {
         const url = this.createUrl(path, query);
-        console.log(`[NET] ${method} ${url}`);
+        if (!environment.production) console.log(`[NET] ${method} ${url}`);
 
         try {
             return await this.http.request<T>(method, url, { body, headers }).toPromise();
@@ -54,20 +54,19 @@ export class ApiHttpService {
         }
     }
 
-    async get<T>(path: string[], query: object = {}, headers: Headers = {}): Promise<T> {
-        return await this.request<T>('GET', path, query, {}, headers);
+    get<T>(path: string[], query: object = {}, headers: Headers = {}): Promise<T> {
+        return this.request<T>('GET', path, query, {}, headers);
     }
 
-    async post<T>(path: string[], body: object = {}, headers: Headers = {}): Promise<T> {
-        return await this.request<T>('POST', path, {}, body, headers);
+    post<T>(path: string[], body: object = {}, headers: Headers = {}): Promise<T> {
+        return this.request<T>('POST', path, {}, body, headers);
     }
 
-    async delete<T>(path: string[], headers: Headers = {}): Promise<T> {
-        return await this.request<T>('DELETE', path, {}, {}, headers);
+    delete<T>(path: string[], headers: Headers = {}): Promise<T> {
+        return this.request<T>('DELETE', path, {}, {}, headers);
     }
 
-    async patch<T>(path: string[], body: object, headers: Headers = {}): Promise<T> {
-        return await this.request<T>('PATCH', path, {}, body, headers);
+    patch<T>(path: string[], body: object, headers: Headers = {}): Promise<T> {
+        return this.request<T>('PATCH', path, {}, body, headers);
     }
-
 }
