@@ -22,6 +22,7 @@ export interface Comment {
     _id: string;
     author: string | User;
     content: string;
+    created: number;
     dislikes: number;
     likes: number;
     replies: string[];
