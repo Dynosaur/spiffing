@@ -66,6 +66,8 @@ export class UserAccountService {
     logOut(): void {
         this.user = null;
         this.ls.delete(LOCAL_STORAGE_ACCOUNT_KEY);
+        this.ratedComments.clear();
+        this.ratedPosts.clear();
         this.events.emit('LOG_OUT');
     }
 
