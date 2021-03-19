@@ -29,12 +29,12 @@
                 <div class="not-found">
                     <h2>Sorry, we couldn't find what you were looking for.</h2>
                     <img src="/assets/not-found.png" class="public-image">
-                    <p class="error-message">Error: {{ errorMessage }}</p>
+                    <p class="error-message">Error: {{ state.errorMessage }}</p>
                 </div>
             </ng-template>
         </ng-template>
     </div>
-    <ng-container *ngIf="state.commentsLoading; else commentsLoaded">
+    <ng-container *ngIf="state.commentsLoading && state.canDisplay; else commentsLoaded">
         <mat-spinner [diameter]="50"></mat-spinner>
     </ng-container>
     <ng-template #commentsLoaded>

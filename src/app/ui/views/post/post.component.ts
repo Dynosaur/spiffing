@@ -34,14 +34,14 @@ export class PostComponent implements OnInit {
     readonly state = {
         liked: false,
         disliked: false,
-        postLoading: true,
+        commentsError: false,
         commentsLoading: true,
-        commentsError: false
+        postLoading: true,
+        canDisplay: false,
+        errorMessage: null
     };
     post: PostUserIncluded;
 
-    canDisplay = false;
-    errorMessage: string;
     commentControl = new FormControl();
     postingComment = false;
     comments: CommentUserIncluded[];
@@ -65,38 +65,44 @@ export class PostComponent implements OnInit {
 
     ngOnInit(): void {
         this.services.route.params.subscribe(async params => {
-            try {
-                this.post = await this.services.post.getPostById(params.id, true) as PostUserIncluded;
-                this.services.title.setTitle(this.post.title);
-                if (!this.services.account.user) {
-                    this.services.account.events.subscribe((event: boolean) => {
-                        if (event === true) this.updateRatings();
-                    });
-                } else this.updateRatings();
-                this.commentsAmount = this.post.comments.length;
-                if (this.post.comments.length) {
-                    const commentsRequest = await this.services.api.getComments(
-                        { parent: { type: 'post', id: this.post._id } }, true
-                    );
-                    if (commentsRequest.ok) {
-                        this.comments = commentsRequest.comments as CommentUserIncluded[];
-                    } else {
-                        this.state.commentsError = true;
-                        this.services.snackbar.push('An error occurred while retrieving the comments.');
-                        console.error(commentsRequest);
-                    }
-                    this.state.commentsLoading = false;
-                } else {
-                    this.comments = [];
-                    this.state.commentsLoading = false;
-                }
-            } catch (error) {
-                if (error instanceof GetPostError) {
-                    this.errorMessage = error.error;
-                } else throw error;
-            }
+            const postResponse = await this.services.api.getPosts(
+                { id: params.id, include: 'authorUser' });
             this.state.postLoading = false;
-            this.canDisplay = !!this.post;
+            if (postResponse.ok === true) {
+                if (postResponse.posts.length > 0) {
+                    this.post = postResponse.posts[0] as PostUserIncluded;
+                    this.state.canDisplay = true;
+                    this.services.title.setTitle(this.post.title);
+                    if (!this.services.account.user) {
+                        this.services.account.events.subscribe((event: boolean) => {
+                            if (event === true) this.updateRatings();
+                        });
+                    } else this.updateRatings();
+                    this.commentsAmount = this.post.comments.length;
+                    if (this.post.comments.length) {
+                        const commentsRequest = await this.services.api.getComments(
+                            { parent: { type: 'post', id: this.post._id } }, true
+                        );
+                        if (commentsRequest.ok) {
+                            this.comments = commentsRequest.comments as CommentUserIncluded[];
+                        } else {
+                            this.state.commentsError = true;
+                            this.services.snackbar.push('An error occurred while retrieving the comments.');
+                            console.error(commentsRequest);
+                        }
+                        this.state.commentsLoading = false;
+                    } else {
+                        this.comments = [];
+                        this.state.commentsLoading = false;
+                    }
+                } else {
+                    this.state.canDisplay = false;
+                    this.state.errorMessage = 'Not found.';
+                }
+            } else {
+                this.state.canDisplay = false;
+                this.state.errorMessage = postResponse.error;
+            }
         });
     }
 
@@ -233,6 +239,10 @@ export class PostComponent implements OnInit {
     }
 
     async postComment(): Promise<void> {
+        if (!this.services.account.user) {
+            this.services.snackbar.push('You must be logged in to comment.', '', 3000);
+            return;
+        }
         this.postingComment = true;
         const response = await this.services.account.postComment('post', this.post._id, this.commentControl.value);
         if (response.ok) {
