@@ -45,14 +45,14 @@ function writeFilePromise(path: string, data: string): Promise<void> {
 }
 
 async function update(): Promise<void> {
-    const destDir = resolve(__dirname, '../src/app/api/interface');
+    const destDir = resolve(__dirname, '../src/app/api');
     if (!await exists(destDir))
         throw new Error(`Could not find destination directory, should be at: ${destDir}`);
 
     let data: string;
     data = await getFromNetworkPath('/api/dev/interface');
 
-    const target = resolve(__dirname, '../src/app/api/interface/interface.ts');
+    const target = resolve(__dirname, '../src/app/api/interface.ts');
     await writeFilePromise(target, data);
 };
 
