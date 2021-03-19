@@ -5,6 +5,7 @@ import { Comment }            from 'interface/data-types';
 import { DialogService }      from 'services/dialog.service';
 import { PostService }        from 'services/post.service';
 import { UserAccountService } from 'services/user-account.service';
+import { SnackbarService } from 'spiff/app/services/snackbar.service';
 
 interface PostWithAuthorUser extends Post {
     author: User;
@@ -23,7 +24,8 @@ export class LandingPageComponent implements OnInit {
     constructor(private title: Title,
                 private post: PostService,
                 public dialog: DialogService,
-                private account: UserAccountService) { }
+                private account: UserAccountService,
+                private snackbar: SnackbarService) {}
 
     ngOnInit(): void {
         this.title.setTitle('spiffing');
@@ -59,6 +61,10 @@ export class LandingPageComponent implements OnInit {
     }
 
     async likePost(post: Post | Comment): Promise<void> {
+        if (!this.account.user) {
+            this.snackbar.push('You must be logged in to rate posts.', '', 3000);
+            return;
+        }
         post = post as Post;
         if (post === undefined || post === null) throw new Error('LandingPageComponent: provided post to like was ' + post);
         if (this.account.ratedPosts.get(post._id) === true) {
@@ -78,6 +84,10 @@ export class LandingPageComponent implements OnInit {
     }
 
     async dislikePost(post: Post | Comment): Promise<void> {
+        if (!this.account.user) {
+            this.snackbar.push('You must be logged in to rate posts.', '', 3000);
+            return;
+        }
         post = post as Post;
         if (post === undefined || post === null) throw new Error('LandingPageComponent: provided post to like was ' + post);
         if (this.account.ratedPosts.get(post._id) === false) {
