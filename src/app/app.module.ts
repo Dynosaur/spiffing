@@ -15,7 +15,6 @@ import { LandingPageComponent } from 'spiff/app/ui/views/landing-page';
 import { LoginDialogComponent } from 'spiff/app/ui/components/dialogs/login-dialog';
 import { RateCounterComponent } from 'spiff/app/ui/components/rate-counter/rate-counter.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { StandaloneCardComponent } from 'spiff/app/components/standalone-card/standalone-card.component';
 import { TextFieldDialogComponent } from './ui/components/text-field-dialog/text-field-dialog.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { ButtonComponent, ViewCardComponent } from 'spiff/app/ui/components';
@@ -39,7 +38,6 @@ import { CreateAccountDialogComponent, DeleteAccountConfirmDialogComponent, Chan
         LandingPageComponent,
         LoginDialogComponent,
         RateCounterComponent,
-        StandaloneCardComponent,
         TextFieldDialogComponent,
         CreateAccountDialogComponent,
         ChangeUsernameDialogComponent,
