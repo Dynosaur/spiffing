@@ -1,12 +1,12 @@
 import { Injectable, EventEmitter } from '@angular/core';
-import { User }       from 'api/interface/data-types';
+import { User } from 'api/interface';
 import { ApiService } from 'api/services/api.service';
 import {
     ICreatePost,
     IDeleteUser,
-    IGetRates,
-    IPatch,
-    IPostComment,
+    IGetRate,
+    IUpdateUser,
+    ICreateComment,
     IRateComment,
     IRatePost
 } from 'api/interface';
@@ -81,7 +81,7 @@ export class UserAccountService {
         username?: string;
         password?: string;
         screenname?: string;
-    }): Promise<IPatch.Tx> {
+    }): Promise<IUpdateUser.Tx> {
         return this.api.patch(this.user.username, this.password, changes);
     }
 
@@ -93,11 +93,11 @@ export class UserAccountService {
         return this.api.ratePost(this.user.username, this.password, postId, rating);
     }
 
-    getRates(): Promise<IGetRates.Tx> {
+    getRates(): Promise<IGetRate.Tx> {
         return this.api.getRates(this.user.username, this.password, this.user._id);
     }
 
-    postComment(parentType: 'post' | 'comment', parentId: string, content: string): Promise<IPostComment.Tx> {
+    postComment(parentType: 'post' | 'comment', parentId: string, content: string): Promise<ICreateComment.Tx> {
         return this.api.postComment(this.user.username, this.password, parentType, parentId, content);
     }
 

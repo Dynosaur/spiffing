@@ -1,27 +1,20 @@
 import { Injectable } from '@angular/core';
-import { ApiHttpService }     from 'api/services/api-http.service';
+import { ApiHttpService } from 'api/services/api-http.service';
 import { basicAuthorization } from 'spiff/app/util/basic-auth';
 import {
-    IAuthorize,
-    ICreatePost,
-    IDeleteUser,
-    IGetComments,
-    IGetPosts,
-    IGetRates,
-    IGetUsers,
-    IPatch,
-    IPostComment,
-    IRateComment,
-    IRatePost,
-    IRegister,
+    ICreateUser, IDeleteUser, IUpdateUser, IGetUser,
+    IGetRate, IRateComment, IRatePost,
+    ICreateComment, IGetComment,
+    ICreatePost, IGetPost,
+    IAuthorize
 } from 'api/interface';
 
 @Injectable({ providedIn: 'root' })
 export class ApiService {
     constructor(private http: ApiHttpService) {}
 
-    register(username: string, password: string): Promise<IRegister.Tx> {
-        return this.http.post(['api', 'user', username], {}, {
+    register(username: string, password: string): Promise<ICreateUser.Tx> {
+        return this.http.post(['api', 'user'], {}, {
             authorization: basicAuthorization(username, password)
         });
     }
@@ -42,15 +35,15 @@ export class ApiService {
         username?: string;
         password?: string;
         screenname?: string;
-    }): Promise<IPatch.Tx> {
+    }): Promise<IUpdateUser.Tx> {
         return this.http.patch(['api', 'user', username], changes, {
             authorization: basicAuthorization(username, password)
         });
     }
 
     getPosts(query: { author?: string; id?: string; ids?: string; include?: string; title?: string }
-    ): Promise<IGetPosts.Tx> {
-        return this.http.get(['api', 'posts'], query);
+    ): Promise<IGetPost.Tx> {
+        return this.http.get(['api', 'post'], query);
     }
 
     createPost(username: string, password: string, title: string, content: string): Promise<ICreatePost.Tx> {
@@ -65,15 +58,15 @@ export class ApiService {
         );
     }
 
-    getRates(username: string, password: string, uid: string): Promise<IGetRates.Tx> {
-        return this.http.get(['api', 'rated', uid], {},
+    getRates(username: string, password: string, uid: string): Promise<IGetRate.Tx> {
+        return this.http.get(['api', 'rate', uid], {},
             { authorization: basicAuthorization(username, password) }
         );
     }
 
     getUsers(query: { id?: string; ids?: string[]; username?: string; usernames?: string[]; } = {}
-    ): Promise<IGetUsers.Tx> {
-        return this.http.get(['api', 'users'], {
+    ): Promise<IGetUser.Tx> {
+        return this.http.get(['api', 'user'], {
             ... query.id  && { id: query.id },
             ... query.ids && { ids: query.ids.join(',') },
             ... query.username  && { username: query.username },
@@ -82,7 +75,7 @@ export class ApiService {
     }
 
     postComment(username: string, password: string, parentType: 'post' | 'comment', parentId: string, content: string
-    ): Promise<IPostComment.Tx> {
+    ): Promise<ICreateComment.Tx> {
         return this.http.post(
             ['api', 'comment', parentType, parentId],
             { content },
@@ -91,8 +84,8 @@ export class ApiService {
     }
 
     getComments(query: { parent?: { type: 'comment' | 'post'; id: string; }; author?: string; } = {},
-    includeAuthorUser?: boolean): Promise<IGetComments.Tx> {
-        return this.http.get(['api', 'comments'], {
+    includeAuthorUser?: boolean): Promise<IGetComment.Tx> {
+        return this.http.get(['api', 'comment'], {
             ...query.parent && { parentType: query.parent.type, parentId: query.parent.id },
             ...query.author && { author: query.author },
             ...includeAuthorUser !== undefined && { include: 'authorUser' }

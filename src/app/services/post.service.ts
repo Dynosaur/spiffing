@@ -1,9 +1,9 @@
 import { ApiService } from 'spiff/app/api/services/api.service';
-import { IGetPosts, Post } from 'spiff/app/api/interface';
+import { IGetPost, Post } from 'spiff/app/api/interface';
 import { Injectable, EventEmitter } from '@angular/core';
 
 export class GetPostError extends Error {
-    constructor(message: string, public error: IGetPosts.ErrorTx['error']) {
+    constructor(message: string, public error: IGetPost.ErrorTx['error']) {
         super(message);
     }
 }
