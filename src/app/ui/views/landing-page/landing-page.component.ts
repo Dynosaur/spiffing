@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Title }             from '@angular/platform-browser';
 import { Post, User }         from 'api/interface';
-import { Comment }            from 'interface/data-types';
+import { Comment }            from 'api/interface';
 import { DialogService }      from 'services/dialog.service';
 import { PostService }        from 'services/post.service';
 import { UserAccountService } from 'services/user-account.service';

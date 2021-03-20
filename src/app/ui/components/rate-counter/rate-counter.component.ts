@@ -1,6 +1,6 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { Post } from 'spiff/app/api/interface';
-import { Comment } from 'interface/data-types';
+import { Comment } from 'api/interface';
 
 @Component({
     selector: 'spiff-rate-counter',

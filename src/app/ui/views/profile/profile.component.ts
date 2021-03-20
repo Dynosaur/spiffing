@@ -1,4 +1,4 @@
-import { Post } from 'spiff/app/api/interface/data-types';
+import { Post } from 'api/interface';
 import { Title } from '@angular/platform-browser';
 import { ApiService } from 'spiff/app/api/services/api.service';
 import { PostService } from 'spiff/app/services/post.service';

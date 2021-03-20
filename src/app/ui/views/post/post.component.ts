@@ -1,12 +1,12 @@
 import { Component, OnInit } from '@angular/core';
-import { FormControl }       from '@angular/forms';
-import { Title }             from '@angular/platform-browser';
-import { ActivatedRoute }    from '@angular/router';
-import { ApiService }                from 'api/services/api.service';
-import { Comment, Post, User }       from 'interface/data-types';
-import { GetPostError, PostService } from 'services/post.service';
-import { SnackbarService }           from 'services/snackbar.service';
-import { UserAccountService }        from 'services/user-account.service';
+import { FormControl } from '@angular/forms';
+import { Title } from '@angular/platform-browser';
+import { ActivatedRoute } from '@angular/router';
+import { ApiService } from 'api/services/api.service';
+import { Comment, Post, User } from 'api/interface';
+import { PostService } from 'services/post.service';
+import { SnackbarService } from 'services/snackbar.service';
+import { UserAccountService } from 'services/user-account.service';
 
 interface PostUserIncluded extends Post {
     author: User;
